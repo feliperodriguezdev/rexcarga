@@ -1,0 +1,22 @@
+# Secretos — NUNCA subir
+.env
+
+# Entorno virtual
+.venv/
+venv/
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+
+# El logo SÍ se versiona: es la ruta por defecto de LOGO_PATH y Render no
+# tiene disco donde subirlo aparte. Si el repo es público y el logo no debe
+# serlo, haz privado el repositorio.
+
+# Sistema operativo / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

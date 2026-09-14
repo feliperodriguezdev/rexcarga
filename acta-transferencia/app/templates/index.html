@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+  <meta name="theme-color" content="#FFFFFF" />
+  <title>Conforme de transferencia · {{ empresa }}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/static/styles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <img class="brand-logo" src="/static/logo.png" alt="{{ empresa }}" />
+      <div class="brand">
+        <span class="brand-title">Conforme de transferencia</span>
+        <span class="brand-sub">{{ empresa }}</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- FORMULARIO -->
+  <main id="vista-form" class="wrap">
+    <p class="intro">Registra la transferencia de responsabilidad de las unidades. Al enviar, el conforme llega al gerente y a los correos de quien entrega y quien recibe.</p>
+
+    <section class="card">
+      <h2 class="card-title">Datos de la transferencia</h2>
+      <label class="field">
+        <span>Lugar de la transferencia</span>
+        <input id="lugar" type="text" inputmode="text" autocomplete="off"
+               placeholder="Ej: Patio SOFASA, Envigado" />
+      </label>
+
+      <div class="field">
+        <span>¿Con qué se mueven las unidades?</span>
+        <div class="seg" id="seg-transporte" role="tablist">
+          <button type="button" class="seg-btn active" data-transporte="ninera">Niñera</button>
+          <button type="button" class="seg-btn" data-transporte="grua">Grúa</button>
+          <button type="button" class="seg-btn" data-transporte="rodado">Rodado</button>
+        </div>
+      </div>
+
+      <label class="field">
+        <span id="label-transporte-placa">Placa de la niñera</span>
+        <input id="transporte-placa" class="mono" type="text"
+               autocapitalize="characters" autocomplete="off" spellcheck="false"
+               inputmode="text" placeholder="ABC123" />
+      </label>
+    </section>
+
+    <section class="card">
+      <h2 class="card-title">Quien entrega</h2>
+      <div data-parte="entrega">
+        <label class="field">
+          <span>Nombre completo</span>
+          <input data-k="nombre" type="text" autocomplete="off" />
+        </label>
+        <div class="row">
+          <label class="field field-tipo">
+            <span>Tipo</span>
+            <select data-k="tipo_documento">
+              <option value="CC" selected>CC</option>
+              <option value="CE">CE</option>
+              <option value="PAS">Pasaporte</option>
+              <option value="NIT">NIT</option>
+            </select>
+          </label>
+          <label class="field field-grow">
+            <span>Número de documento</span>
+            <input data-k="documento" type="text" inputmode="numeric" autocomplete="off" />
+          </label>
+        </div>
+        <label class="field">
+          <span>Correo electrónico</span>
+          <input data-k="email" type="email" inputmode="email" autocapitalize="off"
+                 autocomplete="off" placeholder="nombre@correo.com" />
+        </label>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2 class="card-title">Quien recibe</h2>
+      <div data-parte="recibe">
+        <label class="field">
+          <span>Nombre completo</span>
+          <input data-k="nombre" type="text" autocomplete="off" />
+        </label>
+        <div class="row">
+          <label class="field field-tipo">
+            <span>Tipo</span>
+            <select data-k="tipo_documento">
+              <option value="CC" selected>CC</option>
+              <option value="CE">CE</option>
+              <option value="PAS">Pasaporte</option>
+              <option value="NIT">NIT</option>
+            </select>
+          </label>
+          <label class="field field-grow">
+            <span>Número de documento</span>
+            <input data-k="documento" type="text" inputmode="numeric" autocomplete="off" />
+          </label>
+        </div>
+        <label class="field">
+          <span>Correo electrónico</span>
+          <input data-k="email" type="email" inputmode="email" autocapitalize="off"
+                 autocomplete="off" placeholder="nombre@correo.com" />
+        </label>
+      </div>
+    </section>
+
+    <section class="unidades-head">
+      <h2 class="seccion-title">Unidades</h2>
+      <span id="contador-unidades" class="contador">0</span>
+    </section>
+
+    <div id="unidades"></div>
+
+    <button type="button" id="agregar-unidad" class="btn-secondary">
+      + Agregar unidad
+    </button>
+
+    <section class="card card-firmas">
+      <h2 class="card-title">Firmas</h2>
+      <p class="firmas-nota">Firmen solo después de revisar las unidades y sus observaciones.</p>
+      <div class="firma-wrap">
+        <div class="firma-head">
+          <span>Firma de quien entrega<b class="firma-nombre" data-firma-nombre="entrega"></b></span>
+          <button type="button" class="btn-link" data-clear="entrega">Borrar</button>
+        </div>
+        <canvas class="firma" data-canvas="entrega" height="180"></canvas>
+      </div>
+      <div class="firma-wrap">
+        <div class="firma-head">
+          <span>Firma de quien recibe<b class="firma-nombre" data-firma-nombre="recibe"></b></span>
+          <button type="button" class="btn-link" data-clear="recibe">Borrar</button>
+        </div>
+        <canvas class="firma" data-canvas="recibe" height="180"></canvas>
+      </div>
+    </section>
+
+    <div id="error-box" class="error-box" hidden></div>
+
+    <div class="spacer"></div>
+  </main>
+
+  <!-- BARRA DE ACCIÓN -->
+  <div id="barra-accion" class="actionbar">
+    <button type="button" id="enviar" class="btn-primary">Enviar conforme</button>
+  </div>
+
+  <!-- PANTALLA DE ÉXITO -->
+  <main id="vista-exito" class="wrap vista-exito" hidden>
+    <div class="exito-card">
+      <div class="check">✓</div>
+      <h2>Conforme enviado</h2>
+      <p id="exito-detalle">El documento se envió correctamente.</p>
+      <p class="folio-line">Folio <strong id="exito-folio"></strong></p>
+      <button type="button" id="descargar" class="btn-secondary">Descargar PDF</button>
+      <button type="button" id="nueva-acta" class="btn-primary">Nuevo conforme</button>
+    </div>
+  </main>
+
+  <!-- Plantilla de una unidad -->
+  <template id="tpl-unidad">
+    <section class="card unidad" data-unidad>
+      <div class="unidad-head" data-toggle>
+        <div class="unidad-titulo">
+          <span class="unidad-n"></span>
+          <span class="unidad-resumen"></span>
+        </div>
+        <div class="unidad-acciones">
+          <button type="button" class="btn-icon" data-eliminar title="Eliminar unidad">✕</button>
+          <span class="chevron">▾</span>
+        </div>
+      </div>
+      <div class="unidad-body">
+        <div class="seg" role="tablist">
+          <button type="button" class="seg-btn active" data-tipo="vin">VIN</button>
+          <button type="button" class="seg-btn" data-tipo="placa">Placa</button>
+        </div>
+        <label class="field">
+          <span data-label-id>Número de VIN</span>
+          <input class="mono" data-k="identificador" type="text" autocapitalize="characters"
+                 autocomplete="off" spellcheck="false" />
+        </label>
+        <label class="field">
+          <span>Observaciones</span>
+          <textarea data-k="observacion" rows="3">Sin observaciones</textarea>
+        </label>
+      </div>
+    </section>
+  </template>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>

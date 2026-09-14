@@ -1,0 +1,18 @@
+services:
+  - type: web
+    name: acta-transferencia
+    runtime: python
+    plan: free
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "uvicorn app.main:app --host 0.0.0.0 --port $PORT"
+    envVars:
+      - key: GMAIL_USER
+        sync: false
+      - key: GMAIL_APP_PASSWORD
+        sync: false
+      - key: MANAGER_EMAIL
+        sync: false
+      - key: COMPANY_NAME
+        sync: false
+      - key: TIMEZONE
+        value: America/Bogota
