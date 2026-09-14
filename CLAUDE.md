@@ -163,8 +163,18 @@ Nunca pongas la app password ni ningún secreto en el frontend ni en el repo.
   colores. Para otro cliente, repetir esa receta: el JPEG crudo mete ruido
   que multiplica por diez el peso del PDF que viaja por correo.
 - **Sin rate-limit** en `/api/acta`. Para producción conviene uno básico.
+- **Render free BLOQUEA la salida SMTP** (puertos 25, 465 y 587): el envío de
+  correo NO funciona en el plan gratuito. La traza engaña — `smtplib` lanza
+  solo la primera excepción de `socket.create_connection` y ahí aparece un
+  `Network is unreachable` de IPv6 que hace pensar en un problema de red. El
+  síntoma real es **timeout en IPv4 contra 465 y 587, con HTTPS conectando
+  normal**. Medido el 2026-09-14 contra el servicio en vivo. Salidas: subir a
+  cualquier instancia de pago de Render (lo que ellos recomiendan), o enviar
+  por HTTPS con un proveedor de correo, que es el camino natural cuando se
+  llegue al escalón de dominio propio.
 - Render free duerme la app tras ~15 min; se mitiga con un cron externo a
-  `/health` (ver README).
+  `/health` (ver README). Una instancia de pago quita este problema y el del
+  SMTP de una vez.
 
 ## Estilo de código
 

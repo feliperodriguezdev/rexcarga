@@ -13,7 +13,7 @@ from datetime import datetime
 from zoneinfo import ZoneInfo
 
 from fastapi import FastAPI, Request
-from fastapi.responses import JSONResponse, PlainTextResponse
+from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from pydantic import ValidationError
@@ -29,43 +29,6 @@ log = logging.getLogger("acta")
 app = FastAPI(title="Acta de Transferencia de Responsabilidad")
 app.mount("/static", StaticFiles(directory=config.BASE_DIR / "static"), name="static")
 templates = Jinja2Templates(directory=str(config.BASE_DIR / "templates"))
-
-
-@app.get("/diagnostico-red")
-def diagnostico_red():
-    """
-    TEMPORAL. Prueba la salida de red puerto por puerto y familia por familia.
-
-    smtplib solo informa del primer fallo y oculta el resto, así que desde su
-    traza no se distingue "SMTP bloqueado" de "sin ruta IPv6". Esto lo separa.
-    Quitar en cuanto se decida cómo se envía el correo.
-    """
-    import socket
-
-    lineas = []
-    destinos = [
-        ("smtp.gmail.com", 465, "SMTP sobre SSL (el que usa la app)"),
-        ("smtp.gmail.com", 587, "SMTP con STARTTLS"),
-        ("gmail.com", 443, "HTTPS a Google"),
-        ("api.github.com", 443, "HTTPS a otro sitio"),
-    ]
-    for host, puerto, etiqueta in destinos:
-        for familia, nombre in ((socket.AF_INET, "IPv4"), (socket.AF_INET6, "IPv6")):
-            try:
-                direccion = socket.getaddrinfo(host, puerto, familia, socket.SOCK_STREAM)[0][4]
-            except Exception as e:
-                lineas.append(f"{etiqueta:<34} {nombre}: sin registro DNS ({type(e).__name__})")
-                continue
-            s = socket.socket(familia, socket.SOCK_STREAM)
-            s.settimeout(6)
-            try:
-                s.connect(direccion)
-                lineas.append(f"{etiqueta:<34} {nombre}: CONECTA  ({direccion[0]})")
-            except Exception as e:
-                lineas.append(f"{etiqueta:<34} {nombre}: FALLA    {type(e).__name__}: {e}")
-            finally:
-                s.close()
-    return PlainTextResponse("\n".join(lineas) + "\n")
 
 
 @app.on_event("startup")
