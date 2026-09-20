@@ -85,5 +85,16 @@ colapsables, PDF una hoja por unidad, envío a tres correos, descarga de
 respaldo. **No** incluye: persistencia, históricos, gestión de conductores o
 viajes.
 
+
+## Iniciar servidor
+
+```bash
+.venv/bin/uvicorn app.main:app --reload
+```
+
+La app carga el `.env` sola (ver `config.py`), así que no hace falta el
+`set -a; source .env; set +a`. Lo que sí: si cambias un VALOR del `.env`, hay
+que reiniciar — `--reload` vigila el código, no ese archivo.
+
 Camino de evolución hacia un TMS: firma → (fotos de daños) → persistencia e
 histórico → dominio y correo corporativo → gestión de conductores y viajes.

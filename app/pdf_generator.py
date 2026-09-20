@@ -6,6 +6,7 @@ para esa unidad, con los datos de quien entrega / recibe arriba y las dos
 firmas abajo. Las firmas se capturan una sola vez y se reutilizan en todas
 las hojas.
 """
+import logging
 from datetime import datetime
 from io import BytesIO
 
@@ -18,7 +19,9 @@ from reportlab.pdfgen import canvas
 from reportlab.platypus import Paragraph
 from reportlab.lib.utils import ImageReader
 
-from .models import ActaRequest, Parte, decodificar_firma
+from .models import ActaRequest, Parte, decodificar_firma, decodificar_foto
+
+log = logging.getLogger("acta")
 
 # Paleta (coherente con el frontend)
 INK = (0.086, 0.125, 0.169)     # #16202B
@@ -28,10 +31,38 @@ LINE = (0.839, 0.863, 0.886)    # #D6DCE2
 PAGE_W, PAGE_H = letter
 MARGIN = 18 * mm
 
+# --- Geometría vertical de la hoja ---
+# Estas medidas están ligadas entre sí y antes vivían como números sueltos
+# repartidos por el código, lo que ya provocó un solape entre la observación
+# y las firmas. Aquí el suelo del contenido se DEDUCE de dónde se apoyan las
+# firmas y de cuánto miden, en vez de escribirse a mano.
+_ALTO_BLOQUE_PARTE = 16 * mm      # del ancla a la línea del correo
+_AIRE_TRAS_PARTES = 6 * mm        # respiro antes de la línea de la unidad
+_BASE_FIRMAS = MARGIN + 12 * mm   # las firmas se apoyan casi sobre el pie
+_ALTO_BLOQUE_FIRMA = 26 * mm      # la imagen (20 mm) arranca 6 mm sobre la base
+_TOPE_CONTENIDO = _BASE_FIRMAS + _ALTO_BLOQUE_FIRMA + 2 * mm
+
 _estilo_obs = ParagraphStyle(
     "obs", fontName="Helvetica", fontSize=10.5, leading=15,
     textColor=INK, alignment=TA_LEFT,
 )
+
+
+def _foto_a_miniatura(data_url: str, lado: int = 600) -> ImageReader:
+    """
+    Reduce una foto al tamaño en que se va a ver en la hoja.
+
+    Incrustar la foto original multiplicaría por diez el peso del PDF, que
+    viaja por correo. A 600 px una miniatura de 42 mm se imprime nítida.
+    """
+    crudo = decodificar_foto(data_url)
+    img = Image.open(BytesIO(crudo))
+    img = img.convert("RGB")
+    img.thumbnail((lado, lado), Image.LANCZOS)
+    buf = BytesIO()
+    img.save(buf, format="JPEG", quality=75, optimize=True)
+    buf.seek(0)
+    return ImageReader(buf)
 
 
 def _firma_a_reader(data_url: str) -> ImageReader:
@@ -43,9 +74,78 @@ def _firma_a_reader(data_url: str) -> ImageReader:
     return ImageReader(buf)
 
 
+# --- Fotos de la unidad ---
+# Van en la MISMA hoja, en una tira bajo las observaciones: cada hoja debe
+# seguir siendo un acta autónoma. Las fotos en tamaño grande viajan como
+# adjuntos del correo; aquí solo se necesita reconocer de qué daño se habla.
+_FOTOS_POR_FILA = 4
+_MAX_FILAS_FOTOS = 2                     # 8 miniaturas; el resto va solo adjunto
+_HUECO_MINIATURA = 3 * mm
+
+# La hoja tiene un presupuesto vertical fijo y la observación también lo
+# necesita. Con las 4 fotos del caso típico caben grandes en una fila; si hay
+# más, se encogen para que dos filas no se coman el texto.
+_ALTO_MINIATURA_1_FILA = 30 * mm
+_ALTO_MINIATURA_2_FILAS = 22 * mm
+
+
+def _filas_y_alto(n_fotos: int):
+    """Cuántas filas de miniaturas y de qué alto, según cuántas fotos haya."""
+    if n_fotos <= _FOTOS_POR_FILA:
+        return 1, _ALTO_MINIATURA_1_FILA
+    return 2, _ALTO_MINIATURA_2_FILAS
+
+
+def _alto_banda_fotos(unidad) -> float:
+    """Espacio vertical que hay que reservarle a las fotos (0 si no hay)."""
+    if not unidad.fotos:
+        return 0.0
+    filas, alto = _filas_y_alto(len(unidad.fotos))
+    return 9 * mm + filas * alto + (filas - 1) * _HUECO_MINIATURA
+
+
+def _dibujar_fotos(c, unidad, y_arriba: float, ancho_util: float, lectores):
+    """
+    Pinta las miniaturas empezando en y_arriba y bajando.
+
+    Cada foto se encaja en su recuadro respetando la proporción: las verticales
+    y las horizontales conviven en la misma tira sin deformarse.
+    """
+    if not lectores:
+        return
+
+    c.setFont("Helvetica-Bold", 9)
+    c.setFillColorRGB(*SLATE)
+    visibles = min(len(lectores), _FOTOS_POR_FILA * _MAX_FILAS_FOTOS)
+    sobrantes = len(lectores) - visibles
+    rotulo = f"FOTOS ({len(lectores)})"
+    if sobrantes:
+        rotulo += f" · las {sobrantes} restantes van adjuntas al correo"
+    c.drawString(MARGIN, y_arriba, rotulo)
+
+    _, alto_mini = _filas_y_alto(len(lectores))
+    ancho_caja = (ancho_util - (_FOTOS_POR_FILA - 1) * _HUECO_MINIATURA) / _FOTOS_POR_FILA
+    y = y_arriba - 4 * mm - alto_mini
+
+    for i, lector in enumerate(lectores[:visibles]):
+        fila, col = divmod(i, _FOTOS_POR_FILA)
+        x = MARGIN + col * (ancho_caja + _HUECO_MINIATURA)
+        y_caja = y - fila * (alto_mini + _HUECO_MINIATURA)
+
+        c.setStrokeColorRGB(*LINE)
+        c.setLineWidth(0.5)
+        c.rect(x, y_caja, ancho_caja, alto_mini, stroke=1, fill=0)
+        try:
+            c.drawImage(lector, x + 0.5, y_caja + 0.5,
+                        width=ancho_caja - 1, height=alto_mini - 1,
+                        preserveAspectRatio=True, anchor="c")
+        except Exception:
+            pass      # una foto ilegible no puede tumbar el acta entera
+
+
 def _dibujar_hoja(c, acta: ActaRequest, unidad, indice: int, total: int,
                   folio: str, fecha_txt: str, logo_reader,
-                  firma_entrega, firma_recibe, empresa: str):
+                  firma_entrega, firma_recibe, empresa: str, fotos_unidad):
     ancho_util = PAGE_W - 2 * MARGIN
     y = PAGE_H - MARGIN
 
@@ -102,7 +202,7 @@ def _dibujar_hoja(c, acta: ActaRequest, unidad, indice: int, total: int,
     _bloque_parte(c, "RECIBE", acta.recibe, MARGIN + col_w, y, col_w - 4 * mm)
 
     # --- Unidad + observación ---
-    y -= 34 * mm
+    y -= _ALTO_BLOQUE_PARTE + _AIRE_TRAS_PARTES
     c.setStrokeColorRGB(*LINE)
     c.line(MARGIN, y, PAGE_W - MARGIN, y)
     y -= 6 * mm
@@ -122,14 +222,34 @@ def _dibujar_hoja(c, acta: ActaRequest, unidad, indice: int, total: int,
 
     # Observación con ajuste de línea. Se le reserva el espacio hasta la zona
     # de firmas; si el texto es más largo, ReportLab lo recorta a esa altura.
-    tope_firmas = MARGIN + 42 * mm
-    alto_disp = y - tope_firmas
+    tope_firmas = _TOPE_CONTENIDO
+    banda_fotos = _alto_banda_fotos(unidad)
+    alto_disp = y - tope_firmas - banda_fotos
     p = Paragraph(unidad.observacion.replace("\n", "<br/>"), _estilo_obs)
     _, alto_real = p.wrap(ancho_util, alto_disp)
-    p.drawOn(c, MARGIN, y - min(alto_real, alto_disp))
+    if alto_real > alto_disp:
+        # drawOn pinta el párrafo COMPLETO hacia arriba desde la base que se
+        # le da: un texto que no cabe no se recorta, se monta sobre la
+        # etiqueta y el título de la unidad. split() devuelve solo el trozo
+        # que entra en la altura disponible.
+        trozos = p.split(ancho_util, alto_disp)
+        if trozos:
+            p = trozos[0]
+            _, alto_real = p.wrap(ancho_util, alto_disp)
+        log.warning("Observación de la unidad %s recortada: no cabe en la hoja", indice)
+    alto_obs = min(alto_real, alto_disp)
+    p.drawOn(c, MARGIN, y - alto_obs)
+
+    # --- Fotos ---
+    # Van pegadas a la observación, no ancladas al fondo: con un texto corto
+    # quedaría un hueco blanco enorme en mitad de la hoja. El tope impide que
+    # una observación larga las empuje sobre las firmas.
+    if banda_fotos:
+        y_fotos = max(y - alto_obs - 7 * mm, tope_firmas + banda_fotos - 4 * mm)
+        _dibujar_fotos(c, unidad, y_fotos, ancho_util, fotos_unidad)
 
     # --- Firmas (abajo) ---
-    yf = MARGIN + 34 * mm
+    yf = _BASE_FIRMAS
     c.setStrokeColorRGB(*LINE)
     c.line(MARGIN, yf + 4 * mm, PAGE_W - MARGIN, yf + 4 * mm)
     _bloque_firma(c, "Entrega", acta.entrega, firma_entrega, MARGIN, yf, col_w - 6 * mm)
@@ -196,8 +316,16 @@ def generar_pdf(acta: ActaRequest, folio: str, fecha: datetime,
 
     total = len(acta.unidades)
     for i, unidad in enumerate(acta.unidades, start=1):
+        # Se reducen de a una: con nueve unidades cargadas de fotos, hacerlo
+        # todo de golpe hincharía la memoria del servidor sin necesidad.
+        miniaturas = []
+        for foto in unidad.fotos:
+            try:
+                miniaturas.append(_foto_a_miniatura(foto))
+            except Exception:
+                log.warning("Foto ilegible en la unidad %s; se omite del PDF", i)
         _dibujar_hoja(c, acta, unidad, i, total, folio, fecha_txt,
-                      logo_reader, firma_entrega, firma_recibe, empresa)
+                      logo_reader, firma_entrega, firma_recibe, empresa, miniaturas)
         c.showPage()
 
     c.save()

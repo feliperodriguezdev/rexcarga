@@ -75,7 +75,9 @@ El navegador manda JSON; el servidor valida TODO (no confíes en el cliente).
                "email", "firma": "data:image/png;base64,..." },
   "recibe":  { ...igual que entrega... },
   "unidades": [ { "identificador_tipo": "vin|placa",
-                  "identificador", "observacion" } ]   // mínimo 1
+                  "identificador", "observacion",
+                  "fotos": ["data:image/jpeg;base64,..."] } ]   // mínimo 1 unidad;
+                                                               // fotos opcionales
 }
 ```
 
@@ -102,6 +104,21 @@ El `pdf_base64` alimenta el botón "Descargar PDF" (respaldo si el correo falla)
   separadores. El formulario la limpia mientras se escribe en vez de usar
   `maxlength`: con el tope del navegador, pegar "ABC-123" dejaría "ABC-12" y de
   ahí "ABC12", una placa distinta y sin aviso, en un documento que se firma.
+- **Dos botones de foto, no uno**: "Tomar foto" (`capture="environment"`, sin
+  `multiple`) y "Galería" (`multiple`, sin `capture`). Con un solo input, el
+  selector de fotos de Android abre el álbum del sistema y NO ofrece cámara,
+  que es justo lo que este módulo necesita. No los unifiques.
+- **Fotos por unidad**: opcionales, sin límite de cantidad de cara al
+  conductor. El navegador las reduce ANTES de subirlas (`app.js`) y baja de
+  nivel de compresión solo si el conforme se acerca al presupuesto de 8 MB:
+  el conductor nunca decide esto en el patio. Pasarlas por un canvas las
+  despoja de metadatos, incluida la ubicación GPS. En el PDF van como tira de
+  miniaturas en la hoja de su unidad (una fila de 4 grandes, o dos filas más
+  pequeñas si hay más); en tamaño completo viajan como adjuntos del correo.
+  Los topes de `models.py` (15 por unidad, 2 MB cada una, 20 MB por acta) no
+  son límites de producto sino válvulas contra un cliente malicioso.
+  Nota de dominio: una niñera carga 9 unidades como máximo y el conforme
+  registra UNA placa de transporte, así que el acta tiene techo físico propio.
 - **Identificador**: VIN o placa (al menos uno por unidad). NO se validan los
   17 caracteres del VIN (los carros nuevos suelen ir solo con VIN). Se guarda
   en mayúsculas.
@@ -152,9 +169,17 @@ Nunca pongas la app password ni ningún secreto en el frontend ni en el repo.
 
 ## Limitaciones conocidas / buenos primeros cambios
 
-- **Observación muy larga**: si excede el espacio antes de las firmas,
-  ReportLab la recorta a esa altura (no desborda a otra página). Si se quiere
-  soportar texto largo, hay que paginar la observación dentro de la misma unidad.
+- **Observación muy larga**: se recorta con `Paragraph.split()` y se deja un
+  aviso en el log. OJO con la creencia anterior: `drawOn` NO recorta — pinta el
+  párrafo entero hacia arriba desde su base, así que un texto que no cabe se
+  montaba encima de su propia etiqueta y del título de la unidad. Capacidad
+  actual: ~21 líneas sin fotos, ~13 con cuatro, ~10 con ocho. Si hiciera falta
+  más, habría que paginar la observación dentro de la misma unidad.
+- **Geometría vertical del PDF**: vive en constantes al principio de
+  `pdf_generator.py` (`_BASE_FIRMAS`, `_ALTO_BLOQUE_FIRMA`, `_TOPE_CONTENIDO`…)
+  y están ligadas entre sí: el suelo del contenido se DEDUCE de dónde se apoyan
+  las firmas más su altura. Antes eran números sueltos repartidos por el código
+  y eso ya causó un solape. No vuelvas a escribir un milímetro a mano.
 - **Logo**: ya cableado en `app/static/logo.png` (la ruta por defecto de
   `LOGO_PATH`), así que no necesita variable de entorno ni en Render. El
   original del cliente queda en `app/images/logo.jpeg`; el PNG se derivó de

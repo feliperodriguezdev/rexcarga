@@ -113,6 +113,7 @@
     <section class="unidades-head">
       <h2 class="seccion-title">Unidades</h2>
       <span id="contador-unidades" class="contador">0</span>
+      <span id="peso-fotos" class="peso-fotos" hidden></span>
     </section>
 
     <div id="unidades"></div>
@@ -189,6 +190,21 @@
           <span>Observaciones</span>
           <textarea data-k="observacion" rows="3">Sin observaciones</textarea>
         </label>
+        <div class="field">
+          <span>Fotos <em class="opcional">opcional</em></span>
+          <div class="fotos-grid" data-fotos-grid hidden></div>
+          <div class="fotos-acciones">
+            <label class="btn-foto btn-foto-camara">
+              <input type="file" accept="image/*" capture="environment"
+                     hidden data-foto-input />
+              <span data-foto-texto>Tomar foto</span>
+            </label>
+            <label class="btn-foto">
+              <input type="file" accept="image/*" multiple hidden data-foto-input />
+              <span data-foto-texto>Galería</span>
+            </label>
+          </div>
+        </div>
       </div>
     </section>
   </template>

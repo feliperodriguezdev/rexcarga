@@ -10,6 +10,18 @@ from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent
 
+# Carga el .env del proyecto si existe, para que `uvicorn app.main:app`
+# funcione sin acordarse del `set -a; source .env` (olvidarlo ya costó dos
+# depuraciones: la app arranca "bien" pero sin poder enviar correo).
+# En Render no hay archivo y las variables llegan del panel, así que esto no
+# hace nada allá. No pisa lo que ya esté en el entorno: el sistema manda sobre
+# el archivo, que es lo que permite sobrescribir variables en las pruebas.
+try:
+    from dotenv import load_dotenv
+    load_dotenv(BASE_DIR.parent / ".env")
+except ImportError:      # el proyecto sigue funcionando sin la librería
+    pass
+
 
 def _var(nombre: str, defecto: str = "") -> str:
     """Lee una variable de entorno sin espacios sobrantes a los lados."""

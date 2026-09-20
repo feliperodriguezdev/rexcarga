@@ -106,6 +106,159 @@ inputPlaca.addEventListener("input", () => {
   if (limpio !== inputPlaca.value) inputPlaca.value = limpio;
 });
 
+// ---------- Fotos de las unidades ----------
+// Una foto sale de la cámara con 3 MB y el correo se corta en 25 MB, así que
+// hay que reducirlas AQUÍ, antes de subirlas. Pasarlas por un canvas además
+// les quita los metadatos, incluida la ubicación GPS que traen de fábrica.
+
+// Presupuesto de fotos para todo el conforme, ya reducidas. Con 8 MB el
+// correo final ronda los 12 MB y entra con holgura en cualquier buzón.
+const PRESUPUESTO_FOTOS = 8 * 1024 * 1024;
+
+// Si el conforme crece, se baja de nivel en vez de pedirle al conductor que
+// borre fotos: él nunca debería tener que decidir esto en un patio.
+const NIVELES_FOTO = [
+  { lado: 1280, calidad: 0.70 },
+  { lado: 1024, calidad: 0.70 },
+  { lado: 800, calidad: 0.65 },
+];
+let nivelFoto = 0;
+
+function bytesDeDataUrl(dataUrl) {
+  const b64 = dataUrl.slice(dataUrl.indexOf(",") + 1);
+  return Math.round((b64.length * 3) / 4);
+}
+
+// La orientación de la cámara vive en un dato aparte del archivo. Sin esto,
+// la mitad de las fotos saldrían acostadas en el PDF.
+async function cargarImagen(archivo) {
+  if (window.createImageBitmap) {
+    try {
+      return await createImageBitmap(archivo, { imageOrientation: "from-image" });
+    } catch (e) {
+      // Navegador sin soporte: seguimos con el plan B.
+    }
+  }
+  const url = URL.createObjectURL(archivo);
+  try {
+    return await new Promise((ok, falla) => {
+      const img = new Image();
+      img.onload = () => ok(img);
+      img.onerror = () => falla(new Error("imagen ilegible"));
+      img.src = url;
+    });
+  } finally {
+    setTimeout(() => URL.revokeObjectURL(url), 5000);
+  }
+}
+
+async function reducirFoto(archivo, nivel) {
+  const src = await cargarImagen(archivo);
+  const escala = Math.min(1, nivel.lado / Math.max(src.width, src.height));
+  const lienzo = document.createElement("canvas");
+  lienzo.width = Math.round(src.width * escala);
+  lienzo.height = Math.round(src.height * escala);
+  lienzo.getContext("2d").drawImage(src, 0, 0, lienzo.width, lienzo.height);
+  if (src.close) src.close();          // libera el bitmap en el móvil
+  return lienzo.toDataURL("image/jpeg", nivel.calidad);
+}
+
+function todasLasFotos() {
+  return [...cont.querySelectorAll("[data-unidad]")].flatMap((u) => u._fotos || []);
+}
+
+function pesoTotalFotos() {
+  return todasLasFotos().reduce((suma, f) => suma + f.bytes, 0);
+}
+
+function pintarPeso() {
+  const caja = document.getElementById("peso-fotos");
+  const fotos = todasLasFotos();
+  if (!fotos.length) { caja.hidden = true; return; }
+  const bytes = pesoTotalFotos();
+  // Por debajo de 1 MB, "0,0 MB" no le dice nada a nadie: mejor en KB.
+  const peso = bytes < 1024 * 1024
+    ? `${Math.round(bytes / 1024)} KB`
+    : `${(bytes / 1024 / 1024).toFixed(1)} MB`;
+  caja.hidden = false;
+  caja.textContent = `${fotos.length} ${fotos.length === 1 ? "foto" : "fotos"} · ${peso}`;
+  caja.classList.toggle("apretado", pesoTotalFotos() > PRESUPUESTO_FOTOS * 0.75);
+}
+
+// Si el conforme se pasa del presupuesto, rehacemos TODAS las fotos en el
+// siguiente nivel. Se reprocesa desde el archivo original, no desde la copia
+// ya reducida, para no encadenar pérdidas de calidad.
+async function reequilibrarFotos() {
+  while (pesoTotalFotos() > PRESUPUESTO_FOTOS && nivelFoto < NIVELES_FOTO.length - 1) {
+    nivelFoto++;
+    for (const foto of todasLasFotos()) {
+      foto.dataUrl = await reducirFoto(foto.archivo, NIVELES_FOTO[nivelFoto]);
+      foto.bytes = bytesDeDataUrl(foto.dataUrl);
+    }
+  }
+}
+
+function pintarFotos(nodo) {
+  const grid = nodo.querySelector("[data-fotos-grid]");
+  const fotos = nodo._fotos || [];
+  grid.hidden = fotos.length === 0;
+  grid.innerHTML = "";
+  fotos.forEach((foto, i) => {
+    const caja = document.createElement("div");
+    caja.className = "foto-item";
+    const img = document.createElement("img");
+    img.src = foto.dataUrl;
+    img.alt = `Foto ${i + 1}`;
+    const quitar = document.createElement("button");
+    quitar.type = "button";
+    quitar.className = "foto-quitar";
+    quitar.textContent = "✕";
+    quitar.title = "Quitar esta foto";
+    quitar.addEventListener("click", () => {
+      nodo._fotos.splice(i, 1);
+      pintarFotos(nodo);
+      pintarPeso();
+    });
+    caja.append(img, quitar);
+    grid.appendChild(caja);
+  });
+}
+
+function prepararFotos(nodo) {
+  nodo._fotos = [];
+
+  nodo.querySelectorAll("[data-foto-input]").forEach((entrada) => {
+  const texto = entrada.parentElement.querySelector("[data-foto-texto]");
+
+  entrada.addEventListener("change", async () => {
+    const archivos = [...entrada.files];
+    entrada.value = "";                 // permite volver a elegir el mismo archivo
+    if (!archivos.length) return;
+
+    const original = texto.textContent;
+    texto.textContent = "Procesando…";
+    try {
+      // De a una: decodificar varias fotos grandes a la vez tumba la pestaña
+      // en un celular de gama media.
+      for (const archivo of archivos) {
+        if (!archivo.type.startsWith("image/")) continue;
+        const dataUrl = await reducirFoto(archivo, NIVELES_FOTO[nivelFoto]);
+        nodo._fotos.push({ archivo, dataUrl, bytes: bytesDeDataUrl(dataUrl) });
+        pintarFotos(nodo);
+        pintarPeso();
+      }
+      await reequilibrarFotos();
+    } catch (e) {
+      mostrarErrores(["No se pudo procesar alguna de las fotos. Intenta de nuevo."]);
+    } finally {
+      texto.textContent = original;
+      pintarFotos(nodo);
+      pintarPeso();
+    }
+  });
+  });
+}
+
 // ---------- Alto automático de la observación ----------
 // Arranca en 3 líneas (el rows="3" de la plantilla manda mientras el alto es
 // "auto") y crece con lo que se escriba, para que el conductor vea completo
@@ -158,6 +311,7 @@ function agregarUnidad(enfocar = true) {
   const inputId = nodo.querySelector('[data-k="identificador"]');
   const obs = nodo.querySelector('[data-k="observacion"]');
   obs.addEventListener("input", () => ajustarAltoObs(obs));
+  prepararFotos(nodo);
   segBtns.forEach((b) =>
     b.addEventListener("click", () => {
       segBtns.forEach((x) => x.classList.remove("active"));
@@ -180,6 +334,7 @@ function agregarUnidad(enfocar = true) {
     if (confirm("¿Eliminar esta unidad?")) {
       nodo.remove();
       renumerar();
+      pintarPeso();
     }
   });
 
@@ -269,6 +424,7 @@ function recolectar() {
     identificador_tipo: u.querySelector(".seg-btn.active").dataset.tipo,
     identificador: u.querySelector('[data-k="identificador"]').value.trim(),
     observacion: u.querySelector('[data-k="observacion"]').value.trim(),
+    fotos: (u._fotos || []).map((f) => f.dataUrl),
   }));
   const payload = {
     lugar: document.getElementById("lugar").value.trim(),

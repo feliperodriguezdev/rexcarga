@@ -20,3 +20,6 @@ __pycache__/
 Thumbs.db
 .vscode/
 .idea/
+
+# Propuesta comercial: precios y datos del cliente, fuera del repositorio
+propuesta-comercial.md
