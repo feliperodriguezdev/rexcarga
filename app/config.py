@@ -41,9 +41,28 @@ def _clave_app(nombre: str) -> str:
     return os.getenv(nombre, "").replace(" ", "").strip()
 
 
-# --- Envío de correo (Gmail SMTP) ---
+# --- Envío de correo ---
+# Hay dos transportes y se elige solo: si hay clave de Resend, se envía por
+# HTTPS; si no, por Gmail SMTP. No es un capricho: el plan gratuito de Render
+# BLOQUEA los puertos de SMTP, así que en producción el único camino es HTTPS.
+# En local SMTP sigue sirviendo y no obliga a tener clave de Resend.
+RESEND_API_KEY = _var("RESEND_API_KEY")
+# Remitente verificado en Resend, ej: "conformes@rexcarga.com".
+# Debe pertenecer a un dominio verificado allí, o el envío se rechaza.
+MAIL_FROM = _var("MAIL_FROM")
+
 GMAIL_USER = _var("GMAIL_USER")                     # ej: actas.transportexyz@gmail.com
 GMAIL_APP_PASSWORD = _clave_app("GMAIL_APP_PASSWORD")  # app password de 16 caracteres
+
+
+def usa_resend() -> bool:
+    """True si el envío debe ir por HTTPS en vez de SMTP."""
+    return bool(RESEND_API_KEY)
+
+
+def remitente() -> str:
+    """Dirección desde la que salen los conformes, según el transporte activo."""
+    return MAIL_FROM if usa_resend() else GMAIL_USER
 
 # --- Datos del cliente (hardcodeados por entorno para este MVP) ---
 MANAGER_EMAIL = _var("MANAGER_EMAIL")               # correo fijo del gerente
@@ -63,12 +82,21 @@ def logo_file():
 
 
 def missing_email_config():
-    """Lista de variables de correo que faltan, para avisar en el arranque."""
+    """
+    Variables de correo que faltan, según el transporte activo.
+
+    Con Resend no hacen falta las de Gmail y viceversa: exigir las cuatro
+    haría que producción se quejara de credenciales que no va a usar.
+    """
     faltan = []
-    if not GMAIL_USER:
-        faltan.append("GMAIL_USER")
-    if not GMAIL_APP_PASSWORD:
-        faltan.append("GMAIL_APP_PASSWORD")
+    if usa_resend():
+        if not MAIL_FROM:
+            faltan.append("MAIL_FROM")
+    else:
+        if not GMAIL_USER:
+            faltan.append("GMAIL_USER")
+        if not GMAIL_APP_PASSWORD:
+            faltan.append("GMAIL_APP_PASSWORD")
     if not MANAGER_EMAIL:
         faltan.append("MANAGER_EMAIL")
     return faltan

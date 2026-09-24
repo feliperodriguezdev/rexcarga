@@ -1,13 +1,25 @@
 """
-Envío del acta por correo usando Gmail SMTP.
+Envío del conforme por correo, con dos transportes intercambiables.
 
-El remitente y el servidor están alineados (cuenta Gmail dedicada enviando a
-través de Google), que es la mejor entregabilidad posible sin dominio propio.
-La contraseña de aplicación vive en variables de entorno, nunca en el cliente.
+- **Resend (HTTPS)**: el de producción. El plan gratuito de Render bloquea los
+  puertos de SMTP, así que el puerto 443 es el único camino que queda. Además
+  el remitente va en el dominio del cliente, con SPF y DKIM de Resend, que
+  entrega mucho mejor que una cuenta Gmail gratuita.
+- **Gmail SMTP**: el de desarrollo local, donde no hay bloqueo ni hace falta
+  una clave de Resend para probar.
+
+Lo elige `config.usa_resend()` según haya o no clave. El mensaje se arma una
+sola vez y cada transporte lo entrega a su manera.
+
+Ningún secreto vive aquí: todo llega por variables de entorno.
 """
+import base64
+import json
 import logging
 import re
 import smtplib
+import urllib.error
+import urllib.request
 from email.message import EmailMessage
 
 from . import config
@@ -17,6 +29,9 @@ log = logging.getLogger("acta")
 
 SMTP_HOST = "smtp.gmail.com"
 SMTP_PORT = 465  # SSL
+
+RESEND_URL = "https://api.resend.com/emails"
+RESEND_TIMEOUT = 30
 
 
 def _linea_fotos(acta) -> str:
@@ -36,26 +51,23 @@ def _nombre_foto(indice_unidad: int, identificador: str, n: int) -> str:
     return f"unidad-{indice_unidad:02d}-{limpio}-foto-{n}.jpg"
 
 
-def enviar_acta(pdf_bytes: bytes, folio: str, acta, empresa: str) -> None:
-    """
-    Envía el PDF a: gerente (config), quien entrega y quien recibe.
-    Lanza excepción si el envío falla (el llamador la maneja).
-    """
-    destinatarios = _destinatarios_unicos([
-        config.MANAGER_EMAIL,
-        str(acta.entrega.email),
-        str(acta.recibe.email),
-    ])
+def _adjuntos(pdf_bytes: bytes, folio: str, acta):
+    """Lista de (nombre, bytes) con el PDF y todas las fotos en tamaño completo."""
+    salida = [(f"conforme_transferencia_{folio}.pdf", pdf_bytes)]
+    # En el PDF solo van miniaturas, para que el documento siga siendo
+    # liviano; el detalle del daño se ve en estos archivos.
+    for i, unidad in enumerate(acta.unidades, start=1):
+        for n, foto in enumerate(unidad.fotos, start=1):
+            try:
+                salida.append((_nombre_foto(i, unidad.identificador, n),
+                               decodificar_foto(foto)))
+            except Exception:
+                log.warning("Foto %s de la unidad %s ilegible; no se adjunta", n, i)
+    return salida
 
-    msg = EmailMessage()
-    msg["Subject"] = f"Conforme de entrega - Folio {folio}"
-    msg["From"] = f"Actas de Transferencia — {empresa} <{config.GMAIL_USER}>"
-    msg["To"] = ", ".join(destinatarios)
-    # Las respuestas caen en el buzón del gerente.
-    if config.MANAGER_EMAIL:
-        msg["Reply-To"] = config.MANAGER_EMAIL
 
-    cuerpo = (
+def _cuerpo(folio: str, acta) -> str:
+    return (
         f"Adjuntamos el conforme de recepción/entrega para la transferencia "
         f"de responsabilidades.\n\n"
         f"Lugar: {acta.lugar}\n"
@@ -68,23 +80,88 @@ def enviar_acta(pdf_bytes: bytes, folio: str, acta, empresa: str) -> None:
         f"\n"
         f"Este es un mensaje automático. Documento generado electrónicamente."
     )
-    msg.set_content(cuerpo)
-    msg.add_attachment(
-        pdf_bytes, maintype="application", subtype="pdf",
-        filename=f"conforme_transferencia_{folio}.pdf",
-    )
 
-    # Las fotos en tamaño completo. En el PDF solo van miniaturas, para que el
-    # documento siga siendo liviano; el detalle del daño se ve aquí.
-    for i, unidad in enumerate(acta.unidades, start=1):
-        for n, foto in enumerate(unidad.fotos, start=1):
-            try:
-                msg.add_attachment(
-                    decodificar_foto(foto), maintype="image", subtype="jpeg",
-                    filename=_nombre_foto(i, unidad.identificador, n),
-                )
-            except Exception:
-                log.warning("Foto %s de la unidad %s ilegible; no se adjunta", n, i)
+
+def enviar_acta(pdf_bytes: bytes, folio: str, acta, empresa: str) -> None:
+    """
+    Envía el conforme al gerente, a quien entrega y a quien recibe.
+
+    Lanza excepción si el envío falla; el llamador la maneja y devuelve el PDF
+    igual, para que el conforme nunca se pierda por un problema de correo.
+    """
+    destinatarios = _destinatarios_unicos([
+        config.MANAGER_EMAIL,
+        str(acta.entrega.email),
+        str(acta.recibe.email),
+    ])
+    asunto = f"Conforme de entrega - Folio {folio}"
+    remitente = f"Conformes {empresa} <{config.remitente()}>"
+    cuerpo = _cuerpo(folio, acta)
+    adjuntos = _adjuntos(pdf_bytes, folio, acta)
+
+    if config.usa_resend():
+        _enviar_por_resend(remitente, destinatarios, asunto, cuerpo, adjuntos)
+    else:
+        _enviar_por_smtp(remitente, destinatarios, asunto, cuerpo, adjuntos)
+
+
+def _enviar_por_resend(remitente, destinatarios, asunto, cuerpo, adjuntos):
+    """
+    Entrega por la API HTTPS de Resend.
+
+    Se usa urllib en vez de una librería: es una sola petición y no justifica
+    sumarle una dependencia al proyecto.
+    """
+    payload = {
+        "from": remitente,
+        "to": destinatarios,
+        "subject": asunto,
+        "text": cuerpo,
+        "attachments": [
+            {"filename": nombre, "content": base64.b64encode(datos).decode()}
+            for nombre, datos in adjuntos
+        ],
+    }
+    if config.MANAGER_EMAIL:
+        payload["reply_to"] = config.MANAGER_EMAIL   # las respuestas al gerente
+
+    req = urllib.request.Request(
+        RESEND_URL,
+        data=json.dumps(payload).encode(),
+        headers={
+            "Authorization": f"Bearer {config.RESEND_API_KEY}",
+            "Content-Type": "application/json",
+        },
+        method="POST",
+    )
+    try:
+        with urllib.request.urlopen(req, timeout=RESEND_TIMEOUT) as r:
+            respuesta = json.loads(r.read() or b"{}")
+        log.info("Conforme enviado por Resend (id %s)", respuesta.get("id"))
+    except urllib.error.HTTPError as e:
+        # El detalle de Resend explica el motivo real (dominio sin verificar,
+        # remitente no autorizado, adjuntos demasiado grandes). Sin esto, el
+        # log solo diría "HTTP 403" y no habría por dónde empezar.
+        detalle = e.read().decode(errors="replace")[:500]
+        raise RuntimeError(f"Resend rechazó el envío ({e.code}): {detalle}") from e
+
+
+def _enviar_por_smtp(remitente, destinatarios, asunto, cuerpo, adjuntos):
+    """Entrega por Gmail SMTP. Solo sirve en local: Render free lo bloquea."""
+    msg = EmailMessage()
+    msg["Subject"] = asunto
+    msg["From"] = remitente
+    msg["To"] = ", ".join(destinatarios)
+    if config.MANAGER_EMAIL:
+        msg["Reply-To"] = config.MANAGER_EMAIL
+    msg.set_content(cuerpo)
+    for nombre, datos in adjuntos:
+        if nombre.lower().endswith(".pdf"):
+            msg.add_attachment(datos, maintype="application", subtype="pdf",
+                               filename=nombre)
+        else:
+            msg.add_attachment(datos, maintype="image", subtype="jpeg",
+                               filename=nombre)
 
     with smtplib.SMTP_SSL(SMTP_HOST, SMTP_PORT, timeout=20) as smtp:
         smtp.login(config.GMAIL_USER, config.GMAIL_APP_PASSWORD)

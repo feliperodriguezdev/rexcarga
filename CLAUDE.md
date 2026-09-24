@@ -27,7 +27,10 @@ explícita: es una decisión de alcance, no un olvido.
   index, estáticos en `app/static`). Sin framework, sin paso de build.
 - PDF: **ReportLab** (canvas de bajo nivel, no platypus completo).
 - Imágenes/firmas: **Pillow**.
-- Correo: **Gmail SMTP** vía `smtplib` (SSL, puerto 465).
+- Correo: **dos transportes intercambiables** en `emailer.py`. Con
+  `RESEND_API_KEY` se envía por HTTPS (Resend); sin ella, por Gmail SMTP.
+  Producción usa Resend por obligación: Render free bloquea los puertos SMTP.
+  Local usa SMTP para no exigir clave de Resend al desarrollar.
 - Despliegue: **Render** free tier (`render.yaml` incluido).
 
 ## Estructura
@@ -129,8 +132,13 @@ El `pdf_base64` alimenta el botón "Descargar PDF" (respaldo si el correo falla)
 
 ## Configuración (variables de entorno)
 
-`GMAIL_USER`, `GMAIL_APP_PASSWORD`, `MANAGER_EMAIL`, `COMPANY_NAME`,
-opcional `LOGO_PATH` (PNG; si no existe, el PDF omite el logo) y `TIMEZONE`.
+`MANAGER_EMAIL`, `COMPANY_NAME`, opcional `LOGO_PATH` (PNG; si no existe, el
+PDF omite el logo) y `TIMEZONE`.
+
+Del correo, según el transporte: `RESEND_API_KEY` + `MAIL_FROM` para HTTPS, o
+`GMAIL_USER` + `GMAIL_APP_PASSWORD` para SMTP. `missing_email_config()` solo
+exige las del transporte activo: pedir las cuatro haría que producción se
+quejara de credenciales que no va a usar.
 Nunca pongas la app password ni ningún secreto en el frontend ni en el repo.
 
 ## Decisiones de diseño (frontend)
@@ -188,8 +196,9 @@ Nunca pongas la app password ni ningún secreto en el frontend ni en el repo.
   colores. Para otro cliente, repetir esa receta: el JPEG crudo mete ruido
   que multiplica por diez el peso del PDF que viaja por correo.
 - **Sin rate-limit** en `/api/acta`. Para producción conviene uno básico.
-- **Render free BLOQUEA la salida SMTP** (puertos 25, 465 y 587): el envío de
-  correo NO funciona en el plan gratuito. La traza engaña — `smtplib` lanza
+- **Render free BLOQUEA la salida SMTP** (puertos 25, 465 y 587). RESUELTO
+  enviando por HTTPS con Resend; queda aquí porque el síntoma vuelve a
+  aparecer si alguien reactiva el camino SMTP en producción. La traza engaña — `smtplib` lanza
   solo la primera excepción de `socket.create_connection` y ahí aparece un
   `Network is unreachable` de IPv6 que hace pensar en un problema de red. El
   síntoma real es **timeout en IPv4 contra 465 y 587, con HTTPS conectando
