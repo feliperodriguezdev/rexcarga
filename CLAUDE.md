@@ -2,6 +2,15 @@
 
 Contexto para trabajar este proyecto con Claude Code. Léelo antes de modificar código.
 
+## Estado: EN PAUSA (2026-10-18)
+
+El cliente decidió no usar los conformes por ahora, por logística con sus
+propios clientes, y quiere concentrarse en la landing. El servicio se retiró
+de Render. El código queda completo y sin tocar, listo para reactivarse: el
+tag `conformes-mvp-v1` marca la versión que estuvo en producción, y la sección
+"Reactivar" del README explica los pasos. No lo borres ni lo desmontes al
+trabajar la landing.
+
 ## Qué es
 
 MVP web para una empresa de transporte de carga rodada (niñeras y grúas). Un

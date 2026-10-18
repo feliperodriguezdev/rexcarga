@@ -1,5 +1,11 @@
 # Acta de Transferencia de Responsabilidad — MVP
 
+> **Estado: en pausa desde 2026-10-18.** El cliente (Rexcarga) decidió no
+> usar los conformes por ahora. El código está completo y funcionando. Se
+> retiró de Render, pero sigue aquí listo para volver a usarse. La versión
+> que estuvo en producción está marcada con el tag `conformes-mvp-v1`. Ver
+> [Reactivar](#reactivar).
+
 Formulario web móvil-primero para transporte de carga rodada. El conductor
 registra quién entrega y quién recibe las unidades (con firma), agrega las
 unidades que necesite (VIN o placa + observaciones) y al enviar se genera un
@@ -45,9 +51,21 @@ variables de Gmail.
 1. Sube el proyecto a un repositorio de GitHub.
 2. En Render: **New → Web Service**, conecta el repo. `render.yaml` ya define
    build y start.
-3. Carga las variables de entorno (`GMAIL_USER`, `GMAIL_APP_PASSWORD`,
-   `MANAGER_EMAIL`, `COMPANY_NAME`).
+3. Carga las variables de entorno (`RESEND_API_KEY`, `MAIL_FROM`,
+   `MANAGER_EMAIL`, `COMPANY_NAME`). En Render el correo **tiene** que ir por
+   Resend: el plan gratis bloquea los puertos SMTP.
 4. Queda en `https://<tu-servicio>.onrender.com`.
+
+### Reactivar
+
+- **Si el servicio solo está suspendido en Render**: entra al servicio y usa
+  **Resume Service**. Conserva la URL y las variables de entorno.
+- **Si se borró**: créalo de nuevo con *New → Blueprint* desde este repo
+  (`render.yaml`) y vuelve a cargar las variables.
+- En los dos casos, revisa que la clave de Resend siga vigente y que
+  `MAIL_FROM` sea de un dominio verificado. Si se usaba el cron de
+  cron-job.org contra `/health`, vuelve a activarlo. Al final, haz un conforme
+  de prueba con fotos desde un celular.
 
 ### Mantenerla despierta (importante)
 
