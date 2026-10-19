@@ -3,6 +3,20 @@
 Landing de Transporte Rexcarga (transporte de vehículos en niñera y grúa,
 Colombia). Lee el README para el despliegue.
 
+## Estado (2026-10-19)
+
+La landing está terminada y subida a GitHub como repo privado
+(`feliperodriguezdev/rexcarga-landing`). Las fotos ya tienen las placas
+difuminadas; Felipe las editó a mano. La edición de fotos la hace él, no
+Claude. Todavía no está publicada. Pendiente, en orden:
+
+1. Crear el proyecto en Cloudflare Pages desde el repo: preset None, build
+   vacío, salida `public`. Puede hacerse ya, con la URL `*.pages.dev`.
+2. El cliente compra `rexcarga.com` en Cloudflare y agrega a Felipe como
+   miembro de su cuenta.
+3. Verificar el dominio en Resend y cargar `RESEND_API_KEY`, `MAIL_FROM` y
+   `MAIL_TO` en Pages. Luego, conectar el dominio propio.
+
 ## Decisiones (respétalas)
 
 - **Cloudflare Pages, sin build.** `public/` se publica tal cual y
