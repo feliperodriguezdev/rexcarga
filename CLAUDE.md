@@ -35,3 +35,10 @@ cliente. Esta landing es un proyecto aparte: no los mezcles.
 
 Nombres y comentarios en español. CSS con tokens en `:root`, móvil-primero y
 tap targets de ~52px.
+
+## Placas
+
+Las placas de los camiones (la del bumper y la pintada en la puerta) van
+difuminadas en todas las fotos publicadas. Las coordenadas están en
+`scripts/optimizar_fotos.py` (`PLACAS`). Toda foto nueva que se agregue tiene
+que pasar por ahí.
