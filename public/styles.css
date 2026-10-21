@@ -82,7 +82,9 @@ svg { width: 1em; height: 1em; fill: none; stroke: currentColor; stroke-width: 1
 }
 .cabecera.con-sombra { border-color: var(--linea); box-shadow: 0 4px 20px rgba(11,47,94,.08); }
 .cabecera__fila { display: flex; align-items: center; justify-content: space-between; height: var(--alto-cabecera); }
-.cabecera__logo img { width: 56px; height: auto; }
+.cabecera__logo { display: block; }
+.cabecera__logo img { height: 60px; width: auto; }
+@media (max-width: 560px) { .cabecera__logo img { height: 50px; } }
 .navegacion { display: flex; align-items: center; gap: 2rem; }
 .navegacion a:not(.boton) { color: var(--ink); text-decoration: none; font-weight: 600; font-size: .95rem; position: relative; }
 .navegacion a:not(.boton)::after {
@@ -173,7 +175,14 @@ svg { width: 1em; height: 1em; fill: none; stroke: currentColor; stroke-width: 1
   transition: background .2s, transform .2s;
 }
 .ventaja:hover { background: rgba(255,255,255,.1); transform: translateY(-3px); }
-.ventaja svg { width: 44px; height: 44px; color: #fff; padding: 10px; background: var(--red); border-radius: 50%; margin-bottom: 20px; }
+.ventaja__icono {
+  display: grid; place-items: center; width: 64px; height: 64px; margin-bottom: 22px;
+  background: #fff; border-radius: 16px; box-shadow: 0 10px 24px rgba(0,0,0,.18);
+  transition: transform .3s;
+}
+.ventaja:hover .ventaja__icono { transform: rotate(-4deg) scale(1.05); }
+.ventaja__icono svg { width: 36px; height: 36px; color: var(--navy); stroke-width: 1.6; }
+.ventaja__icono .acento { stroke: var(--red); stroke-width: 1.9; }
 .ventaja h3 { font-size: 1.1rem; }
 .ventaja p { font-size: .97rem; margin: 0; }
 @media (max-width: 1000px) { .ventajas { grid-template-columns: repeat(2, 1fr); } }
@@ -268,7 +277,7 @@ legend span { display: grid; place-items: center; width: 32px; height: 32px; bor
 /* Pie */
 .pie { background: var(--navy-hondo); color: rgba(255,255,255,.72); padding: 64px 0 0; font-size: .97rem; }
 .pie__columnas { display: grid; grid-template-columns: 1.3fr 1fr 1fr; gap: 40px; }
-.pie__marca img { width: 72px; margin-bottom: 16px; }
+.pie__marca img { height: 72px; width: auto; margin-bottom: 20px; }
 .pie__marca p { max-width: 32ch; }
 .pie h2 { color: #fff; font-size: .82rem; letter-spacing: .14em; text-transform: uppercase; margin-bottom: 18px; }
 .pie ul { list-style: none; padding: 0; margin: 0; }
