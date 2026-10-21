@@ -43,7 +43,7 @@
   for (let i = 1; i <= FOTOS_GALERIA; i++) {
     const n = String(i).padStart(2, "0");
     const figura = document.createElement("figure");
-    figura.innerHTML = `<img src="/img/galeria/${n}.webp" alt="Operación de Rexcarga, foto ${i} de ${FOTOS_GALERIA}" width="1200" height="900" loading="lazy">`;
+    figura.innerHTML = `<img src="img/galeria/${n}.webp" alt="Operación de Rexcarga, foto ${i} de ${FOTOS_GALERIA}" width="1200" height="900" loading="lazy">`;
     galeria.appendChild(figura);
   }
   document.querySelectorAll(".flecha").forEach((boton) => {
@@ -144,7 +144,7 @@
     botonEnviar.disabled = true;
     botonEnviar.textContent = "Enviando…";
     try {
-      const respuesta = await fetch("/api/cotizacion", {
+      const respuesta = await fetch("api/cotizacion", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(datos),

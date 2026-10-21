@@ -36,6 +36,17 @@ functions/
 
 Cada push a `master` publica. Las ramas generan URLs de vista previa.
 
+## Alternativa: GitHub Pages
+
+El workflow `.github/workflows/pages.yml` publica `public/` en cada push a
+`master`. En el repo hay que activar **Settings → Pages → Source: GitHub
+Actions**, y el repo tiene que ser público (en la cuenta gratis, Pages no
+publica repos privados). Queda en
+`https://feliperodriguezdev.github.io/rexcarga-landing/`.
+
+Limitación: GitHub Pages no ejecuta `functions/`, así que el formulario no
+envía correos. El cliente ve el respaldo para mandar los datos por WhatsApp.
+
 ## Correo (Resend)
 
 Para que `MAIL_FROM` pueda ser `@rexcarga.com`, el dominio tiene que estar

@@ -19,6 +19,11 @@ Claude. Todavía no está publicada. Pendiente, en orden:
 
 ## Decisiones (respétalas)
 
+- **Rutas relativas** (`img/...`, `styles.css`, `api/cotizacion`), nunca con
+  `/` al inicio. En GitHub Pages el sitio vive en la subcarpeta
+  `/rexcarga-landing/`, y una ruta con `/` apunta a la raíz del dominio, donde
+  no existe nada.
+
 - **Cloudflare Pages, sin build.** `public/` se publica tal cual y
   `functions/` son las Pages Functions. HTML, CSS y JS vanilla, sin framework
   ni dependencias. El cliente pidió no pagar alojamiento.
