@@ -4,7 +4,7 @@
 
   const WHATSAPP_NUMERO = "573017599061";
   const WHATSAPP_MENSAJE = "Hola, estoy interesado en cotizar el servicio de transporte de vehículos. Agradezco su asesoría.";
-  const FOTOS_GALERIA = 14;
+  const FOTOS_GALERIA = 21;
 
   const enlaceWhatsapp = (texto) =>
     `https://wa.me/${WHATSAPP_NUMERO}?text=${encodeURIComponent(texto)}`;
@@ -46,12 +46,45 @@
     figura.innerHTML = `<img src="img/galeria/${n}.webp" alt="Operación de Rexcarga, foto ${i} de ${FOTOS_GALERIA}" width="1200" height="900" loading="lazy">`;
     galeria.appendChild(figura);
   }
-  document.querySelectorAll(".flecha").forEach((boton) => {
+  // Se avanza de a una "página" (las fotos que caben a la vista, según el
+  // --por-vista del CSS). Los puntos marcan la página y las flechas se apagan
+  // en los extremos.
+  const puntos = document.getElementById("galeria-puntos");
+  const flechas = document.querySelectorAll(".flecha");
+  const porVista = () => Number(getComputedStyle(galeria).getPropertyValue("--por-vista")) || 1;
+  const anchoPagina = () => galeria.clientWidth + parseFloat(getComputedStyle(galeria).columnGap || 0);
+  const maxScroll = () => galeria.scrollWidth - galeria.clientWidth;
+
+  const paginaActual = (total) =>
+    // La última página casi nunca empieza justo en su múltiplo: si se llegó
+    // al final, es la última.
+    galeria.scrollLeft >= maxScroll() - 2 ? total - 1 : Math.round(galeria.scrollLeft / anchoPagina());
+
+  function dibujarPuntos() {
+    const total = Math.ceil(FOTOS_GALERIA / porVista());
+    if (puntos.childElementCount !== total) {
+      puntos.replaceChildren(...Array.from({ length: total }, (_, i) => {
+        const punto = document.createElement("button");
+        punto.type = "button";
+        punto.setAttribute("aria-label", `Ir a la página ${i + 1} de ${total}`);
+        punto.addEventListener("click", () => galeria.scrollTo({ left: i * anchoPagina() }));
+        return punto;
+      }));
+    }
+    const actual = paginaActual(total);
+    [...puntos.children].forEach((p, i) => p.setAttribute("aria-current", String(i === actual)));
+    flechas[0].disabled = galeria.scrollLeft <= 2;
+    flechas[1].disabled = galeria.scrollLeft >= maxScroll() - 2;
+  }
+
+  flechas.forEach((boton) => {
     boton.addEventListener("click", () => {
-      const paso = galeria.querySelector("figure").offsetWidth + 16;
-      galeria.scrollBy({ left: paso * Number(boton.dataset.direccion) });
+      galeria.scrollBy({ left: anchoPagina() * Number(boton.dataset.direccion) });
     });
   });
+  galeria.addEventListener("scroll", () => requestAnimationFrame(dibujarPuntos), { passive: true });
+  window.addEventListener("resize", dibujarPuntos);
+  dibujarPuntos();
 
   // --- Aparición suave de bloques al entrar en pantalla
   const bloques = document.querySelectorAll(".valores li, .ventaja, .servicio, .recuadro, .foto-marco, .mapa");

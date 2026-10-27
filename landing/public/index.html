@@ -22,7 +22,7 @@
 <header class="cabecera" id="cabecera">
   <div class="contenedor cabecera__fila">
     <a href="#inicio" class="cabecera__logo" aria-label="Transporte Rexcarga, inicio">
-      <img src="img/logo-cabecera.png" alt="Transporte Rexcarga S.A.S" width="131" height="60">
+      <img src="img/logo-cabecera.png" alt="Transporte Rexcarga S.A.S" width="241" height="110">
     </a>
     <button class="cabecera__menu" id="boton-menu" aria-expanded="false" aria-controls="navegacion" aria-label="Abrir menú">
       <span></span><span></span><span></span>
@@ -31,7 +31,7 @@
       <a href="#nosotros">Sobre nosotros</a>
       <a href="#servicios">Nuestros servicios</a>
       <a href="#cobertura">Rutas y cobertura</a>
-      <a href="#cotizar" class="boton boton--primario boton--chico">Cotizar servicio</a>
+      <a href="#cotizar">Cotizar servicio</a>
     </nav>
   </div>
 </header>
@@ -44,7 +44,7 @@
     <div class="contenedor portada__contenido">
       <p class="antetitulo antetitulo--claro">Transporte terrestre de vehículos</p>
       <h1>Tu vehículo tiene un destino.<br><span>Nosotros te ayudamos a llegar.</span></h1>
-      <p class="portada__texto">Movilizamos vehículos en niñera y grúa a nivel nacional, con seguridad y cumplimiento.</p>
+      <p class="portada__texto">Transportamos tu vehículo con experiencia, seguridad y confianza.</p>
       <div class="portada__acciones">
         <a href="#cotizar" class="boton boton--primario">Cotiza tu traslado</a>
         <a href="#servicios" class="boton boton--contorno-claro">Ver servicios</a>
@@ -69,32 +69,42 @@
         <img src="img/nosotros.webp" alt="Niñera de Rexcarga cargada con vehículos nuevos" width="1200" height="675" loading="lazy">
       </figure>
     </div>
+  </section>
 
+  <!-- Valores -->
+  <section class="seccion seccion--gris" id="valores">
     <div class="contenedor">
-      <h3 class="subtitulo-seccion">Nuestros valores fundamentales</h3>
+      <p class="antetitulo">Valores</p>
+      <h2 class="valores__titulo">Nuestros valores fundamentales</h2>
       <ol class="valores">
         <li>
           <figure class="valores__foto">
-            <img src="img/valores/profesionalismo.webp" alt="Supervisor revisando la operación de cargue con su planilla" width="800" height="600" loading="lazy">
+            <img src="img/valores/profesionalismo.webp" alt="Equipo de operaciones coordinando un traslado frente al computador" width="800" height="600" loading="lazy">
           </figure>
-          <span class="valores__numero">01.</span>
-          <h4>Profesionalismo</h4>
+          <div class="valores__cabeza">
+            <span class="valores__numero">01.</span>
+            <h3 class="valores__destacado">Profesionalismo</h3>
+          </div>
           <p>Actuamos con responsabilidad y organización en cada servicio, mediante la coordinación de las operaciones y la atención a los requerimientos de cada traslado.</p>
         </li>
         <li>
           <figure class="valores__foto">
             <img src="img/valores/precision.webp" alt="Inspección del estado de un vehículo con tableta antes del traslado" width="800" height="600" loading="lazy">
           </figure>
-          <span class="valores__numero">02.</span>
-          <h4>Precisión</h4>
-          <p>Prestamos atención a cada detalle del proceso, desde la verificación y el registro del estado del vehículo hasta la coordinación de su recogida y entrega.</p>
+          <div class="valores__cabeza">
+            <span class="valores__numero">02.</span>
+            <h3>Precisión</h3>
+          </div>
+          <p>Prestamos atención a cada detalle del proceso, desde la verificación y el registro del estado del vehículo hasta la coordinación de su recogida y hasta la entrega.</p>
         </li>
         <li>
           <figure class="valores__foto">
             <img src="img/valores/innovacion.webp" alt="Centro de monitoreo con el seguimiento GPS de los traslados en pantalla" width="800" height="600" loading="lazy">
           </figure>
-          <span class="valores__numero">03.</span>
-          <h4>Innovación y mejora continua</h4>
+          <div class="valores__cabeza">
+            <span class="valores__numero">03.</span>
+            <h3>Innovación y mejora continua</h3>
+          </div>
           <p>Incorporamos herramientas como el monitoreo satelital GPS y el inventario del vehículo, y buscamos fortalecer nuestros procesos para mejorar el seguimiento, el control y la gestión de cada traslado.</p>
         </li>
       </ol>
@@ -106,7 +116,7 @@
     <div class="contenedor">
       <p class="antetitulo antetitulo--claro">¿Por qué elegir a Rexcarga?</p>
       <h2>Respaldamos cada traslado con seguimiento, coordinación y control</h2>
-      <p class="intro">Procedimientos orientados al cuidado de tu vehículo, de la recogida a la entrega.</p>
+      <p class="intro">Protocolos de inspección y control para proteger tu vehículo desde el origen hasta el destino.</p>
       <div class="ventajas">
         <article class="ventaja">
           <span class="ventaja__icono"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.6 13.4l-7.2 7.2a2 2 0 0 1-2.8 0L2.5 12.5V2.5h10l8.1 8.1a2 2 0 0 1 0 2.8z"/><circle cx="7" cy="7" r="1.4"/><path class="acento" d="M13.6 9.6h-2.1a1.3 1.3 0 0 0 0 2.6h1.2a1.3 1.3 0 0 1 0 2.6h-2.3M12 8.4v1.2M12 14.8V16"/></svg></span>
@@ -158,7 +168,7 @@
 
       <article class="servicio servicio--invertido">
         <figure class="servicio__foto">
-          <img src="img/servicio-grua.webp" alt="Grúa de plataforma transportando un vehículo" width="1200" height="900" loading="lazy">
+          <img src="img/servicio-grua.webp" alt="Grúa de plataforma transportando una camioneta" width="1200" height="900" loading="lazy">
         </figure>
         <div class="servicio__texto">
           <span class="etiqueta">Un vehículo por recorrido</span>
@@ -179,21 +189,23 @@
   <!-- Galería -->
   <section class="seccion seccion--gris" aria-labelledby="titulo-galeria">
     <div class="contenedor galeria__cabecera">
-      <div>
-        <p class="antetitulo">Galería</p>
-        <h2 id="titulo-galeria">Nuestra operación en ruta</h2>
-      </div>
-      <div class="galeria__flechas">
-        <button class="flecha" data-direccion="-1" aria-label="Fotos anteriores">
+      <p class="antetitulo">Galería</p>
+      <h2 id="titulo-galeria">Nuestra operación en ruta</h2>
+    </div>
+    <!-- Carrusel dentro del contenedor, con las flechas a los costados -->
+    <div class="contenedor">
+      <div class="galeria__marco">
+        <button class="flecha flecha--anterior" data-direccion="-1" aria-label="Fotos anteriores">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>
         </button>
-        <button class="flecha" data-direccion="1" aria-label="Fotos siguientes">
+        <div class="galeria" id="galeria" tabindex="0" aria-label="Carrusel de fotografías">
+          <!-- Se llena desde main.js: 21 fotos en /img/galeria/NN.webp -->
+        </div>
+        <button class="flecha flecha--siguiente" data-direccion="1" aria-label="Fotos siguientes">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg>
         </button>
       </div>
-    </div>
-    <div class="galeria" id="galeria" tabindex="0" aria-label="Carrusel de fotografías">
-      <!-- Se llena desde main.js: 14 fotos en /img/galeria/NN.webp -->
+      <div class="galeria__puntos" id="galeria-puntos" aria-label="Páginas de la galería"></div>
     </div>
   </section>
 
