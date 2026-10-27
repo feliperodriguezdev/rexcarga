@@ -1,4 +1,4 @@
 # Copia a .dev.vars para `wrangler pages dev` (no subas .dev.vars)
 RESEND_API_KEY=
-MAIL_FROM=Rexcarga Web <cotizaciones@rexcarga.com>
+MAIL_FROM=Rexcarga Web <cotizaciones@transporterexcarga.com>
 MAIL_TO=programaciones.rexcarga@gmail.com

@@ -3,7 +3,7 @@
 // Variables (Pages → Settings → Variables and Secrets):
 //   RESEND_API_KEY  secreto de resend.com
 //   MAIL_FROM       remitente de un dominio verificado en Resend,
-//                   p. ej. "Rexcarga Web <cotizaciones@rexcarga.com>"
+//                   p. ej. "Rexcarga Web <cotizaciones@transporterexcarga.com>"
 //   MAIL_TO         buzón que recibe las cotizaciones
 
 const SERVICIOS = ["Transporte en niñera", "Servicio de grúa – Urbano", "Servicio de grúa – Nacional"];
@@ -61,7 +61,7 @@ function armarCorreo(d) {
   const html = `
     <div style="font-family:Arial,sans-serif;color:#0E1B2E;max-width:560px">
       <h2 style="color:#0B2F5E;margin:0 0 4px">Nueva solicitud de cotización</h2>
-      <p style="color:#5b6575;margin:0 0 20px">Recibida desde rexcarga.com</p>
+      <p style="color:#5b6575;margin:0 0 20px">Recibida desde transporterexcarga.com</p>
       <table style="border-collapse:collapse;width:100%">
         ${filas.map(([k, v]) => `
           <tr>

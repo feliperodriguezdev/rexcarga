@@ -1,6 +1,6 @@
 # Landing de Transporte Rexcarga
 
-Página de una sola pantalla para `rexcarga.com`: presentación de la empresa,
+Página de una sola pantalla para `transporterexcarga.com`: presentación de la empresa,
 servicios (niñera y grúa), galería, cobertura y formulario de cotización. El
 formulario llega por correo a `programaciones.rexcarga@gmail.com`, y hay un
 botón flotante de WhatsApp.
@@ -19,51 +19,53 @@ functions/
 
 ## Desplegar en Cloudflare Pages
 
-1. Sube este repo a GitHub.
-2. Cloudflare → **Workers & Pages → Create → Pages → Connect to Git**, elige
-   el repo.
-3. Configuración del build:
+Vive en `landing/` del monorepo (ver el README de la raíz).
+
+1. Cloudflare → **Workers & Pages → Create → Pages → Connect to Git**, elige
+   el repo `rexcarga`.
+2. Configuración del build:
    - Framework preset: **None**
    - Build command: *(vacío)*
+   - **Root directory: `landing`** (así encuentra `functions/`)
    - Build output directory: `public`
-4. **Settings → Variables and Secrets** (en Production):
+   - **Build watch paths** → Include: `landing/*`, para que un cambio en los
+     conformes no republique la landing.
+3. **Settings → Variables and Secrets** (en Production):
    - `RESEND_API_KEY`: secreto, de resend.com.
-   - `MAIL_FROM`: `Rexcarga Web <cotizaciones@rexcarga.com>`.
+   - `MAIL_FROM`: `Rexcarga Web <cotizaciones@transporterexcarga.com>`.
    - `MAIL_TO`: `programaciones.rexcarga@gmail.com` (acepta varios separados
      por coma).
-5. **Custom domains**: añade `rexcarga.com` y `www.rexcarga.com`. Como el
-   dominio está comprado en Cloudflare, los registros DNS se crean solos.
+4. **Custom domains**: añade `transporterexcarga.com` y
+   `www.transporterexcarga.com`. Como el dominio está comprado en Cloudflare,
+   los registros DNS se crean solos.
 
 Cada push a `master` publica. Las ramas generan URLs de vista previa.
 
-## Alternativa: GitHub Pages
-
-El workflow `.github/workflows/pages.yml` publica `public/` en cada push a
-`master`. En el repo hay que activar **Settings → Pages → Source: GitHub
-Actions**, y el repo tiene que ser público (en la cuenta gratis, Pages no
-publica repos privados). Queda en
-`https://feliperodriguezdev.github.io/rexcarga-landing/`.
-
-Limitación: GitHub Pages no ejecuta `functions/`, así que el formulario no
-envía correos. El cliente ve el respaldo para mandar los datos por WhatsApp.
-
 ## Correo (Resend)
 
-Para que `MAIL_FROM` pueda ser `@rexcarga.com`, el dominio tiene que estar
+Para que `MAIL_FROM` pueda ser `@transporterexcarga.com`, el dominio tiene que estar
 verificado en Resend: **Domains → Add domain**, y se copian a Cloudflare DNS
-los registros que pide (SPF, DKIM). Hasta entonces el formulario responde con
+los registros que pide (SPF, DKIM). Es la misma verificación que usan los
+conformes: se hace una sola vez para los dos. Hasta entonces el formulario responde con
 error, y la página le ofrece al cliente enviar los mismos datos por WhatsApp,
 así que no se pierde ninguna solicitud.
 
 Cada correo trae el `Reply-To` del cliente (con "Responder" se le contesta a
 él) y un botón para abrirle WhatsApp.
 
+## Atajo a los conformes
+
+`public/_redirects` manda `/conforme` y `/conformes` a
+`https://conformes.transporterexcarga.com/`, para que el enlace que se les
+pasa a los conductores sea fácil de dictar. La landing no enlaza a los
+conformes en ninguna parte: es una herramienta interna.
+
 ## Probar en local
 
 La página es estática: basta con
 
 ```bash
-cd public && python3 -m http.server 8000
+cd landing/public && python3 -m http.server 8000
 ```
 
 El formulario necesita la función. `npx wrangler pages dev public` la corre,

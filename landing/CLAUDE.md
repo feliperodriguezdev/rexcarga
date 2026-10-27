@@ -3,26 +3,25 @@
 Landing de Transporte Rexcarga (transporte de vehículos en niñera y grúa,
 Colombia). Lee el README para el despliegue.
 
-## Estado (2026-10-19)
+## Estado (2026-10-26)
 
-La landing está terminada y subida a GitHub como repo privado
-(`feliperodriguezdev/rexcarga-landing`). Las fotos ya tienen las placas
-difuminadas; Felipe las editó a mano. La edición de fotos la hace él, no
-Claude. Todavía no está publicada. Pendiente, en orden:
+La landing está terminada. Vive en `landing/` del monorepo `rexcarga` (lee
+también el CLAUDE.md de la raíz). Todavía no está publicada. Pendiente:
 
-1. Crear el proyecto en Cloudflare Pages desde el repo: preset None, build
-   vacío, salida `public`. Puede hacerse ya, con la URL `*.pages.dev`.
-2. El cliente compra `rexcarga.com` en Cloudflare y agrega a Felipe como
-   miembro de su cuenta.
+1. Crear el proyecto en Cloudflare Pages desde el repo `rexcarga`, con root
+   directory `landing` (ver README). Puede hacerse ya, con la URL
+   `*.pages.dev`.
+2. El cliente compra `transporterexcarga.com` en Cloudflare y agrega a Felipe
+   como miembro de su cuenta.
 3. Verificar el dominio en Resend y cargar `RESEND_API_KEY`, `MAIL_FROM` y
    `MAIL_TO` en Pages. Luego, conectar el dominio propio.
 
 ## Decisiones (respétalas)
 
-- **Rutas relativas** (`img/...`, `styles.css`, `api/cotizacion`), nunca con
-  `/` al inicio. En GitHub Pages el sitio vive en la subcarpeta
-  `/rexcarga-landing/`, y una ruta con `/` apunta a la raíz del dominio, donde
-  no existe nada.
+- **Rutas relativas** (`img/...`, `styles.css`, `api/cotizacion`). Nacieron
+  para una vista previa en GitHub Pages (subcarpeta), que ya se retiró:
+  Cloudflare Pages da sus propias URLs de vista previa. Se dejan así porque
+  no estorban.
 
 - **Cloudflare Pages, sin build.** `public/` se publica tal cual y
   `functions/` son las Pages Functions. HTML, CSS y JS vanilla, sin framework
@@ -45,10 +44,12 @@ Claude. Todavía no está publicada. Pendiente, en orden:
   que traen marcas de agua con fecha y coordenadas GPS, y los banners con
   texto incrustado.
 
-## Relación con el repo `conforme`
+## Relación con los conformes
 
-El servicio de conformes, en `../conforme`, está en pausa por decisión del
-cliente. Esta landing es un proyecto aparte: no los mezcles.
+Los conformes viven en `../conformes` y corren aparte, en Render, en
+`conformes.transporterexcarga.com`. La landing no los enlaza (son una
+herramienta interna); solo `public/_redirects` lleva `/conforme` allá. Los
+dos comparten la paleta y la verificación del dominio en Resend.
 
 ## Estilo de código
 

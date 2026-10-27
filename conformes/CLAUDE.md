@@ -2,14 +2,14 @@
 
 Contexto para trabajar este proyecto con Claude Code. Léelo antes de modificar código.
 
-## Estado: EN PAUSA (2026-10-18)
+## Dónde vive (2026-10-26)
 
-El cliente decidió no usar los conformes por ahora, por logística con sus
-propios clientes, y quiere concentrarse en la landing. El servicio se retiró
-de Render. El código queda completo y sin tocar, listo para reactivarse: el
-tag `conformes-mvp-v1` marca la versión que estuvo en producción, y la sección
-"Reactivar" del README explica los pasos. No lo borres ni lo desmontes al
-trabajar la landing.
+Este es el subproyecto `conformes/` del monorepo de Rexcarga; lee también el
+CLAUDE.md de la raíz. Estuvo en pausa entre el 2026-10-18 y el 2026-10-26 (el
+tag `conformes-mvp-v1` marca la versión que estuvo en producción antes) y el
+cliente lo reactivó junto con la landing. Corre en Render, en
+`conformes.transporterexcarga.com`; `render.yaml` está en la raíz del repo con
+`rootDir: conformes`.
 
 ## Qué es
 
@@ -54,7 +54,7 @@ app/
   templates/index.html   # formulario + pantalla de éxito (misma página)
   static/styles.css      # tokens de diseño (acero/ámbar), móvil-primero
   static/app.js          # firmas en canvas, unidades dinámicas, envío, éxito
-requirements.txt · render.yaml · .env.example · README.md
+requirements.txt · .env.example · README.md   (render.yaml en la raíz)
 ```
 
 ## Comandos
@@ -153,12 +153,13 @@ Nunca pongas la app password ni ningún secreto en el frontend ni en el repo.
 ## Decisiones de diseño (frontend)
 
 - Móvil-primero, tap targets de ~52px, barra de acción fija abajo.
-- Paleta **tomada del logo del cliente**: azul `--navy #18446F` (el 71% de su
-  tinta) y rojo `--red #C11C1E`. El azul manda en el chrome y el texto
-  (`--ink` es ese azul llevado a casi negro); el rojo se gasta solo en la
-  acción primaria. El resto, gris disciplinado. Reemplazó al ámbar de
-  seguridad original; si se revende a otro cliente, hay que volver a derivar
-  estos dos tokens de SU logo.
+- Paleta **tomada del logo del cliente** y compartida con la landing: azul
+  `--navy #0B2F5E` y rojo `--red #D00F17` (los mismos valores que
+  `landing/public/styles.css`; si cambian allá, cambian aquí). El azul manda
+  en el chrome y el texto (`--ink` es ese azul llevado a casi negro); el rojo
+  se gasta solo en la acción primaria. El resto, gris disciplinado. Si se
+  revende a otro cliente, hay que volver a derivar estos dos tokens de SU
+  logo.
 - **La barra superior es clara a propósito.** Lleva el logo, y el logo es azul
   sobre fondo transparente: sobre una barra oscura la niñera desaparecería.
   Por eso el fondo es blanco con borde inferior, y `theme-color` acompaña.
@@ -198,11 +199,11 @@ Nunca pongas la app password ni ningún secreto en el frontend ni en el repo.
   las firmas más su altura. Antes eran números sueltos repartidos por el código
   y eso ya causó un solape. No vuelvas a escribir un milímetro a mano.
 - **Logo**: ya cableado en `app/static/logo.png` (la ruta por defecto de
-  `LOGO_PATH`), así que no necesita variable de entorno ni en Render. El
-  original del cliente queda en `app/images/logo.jpeg`; el PNG se derivó de
-  ahí recortando el margen, volviendo transparente el fondo (era un gris
-  viñeteado que se veía como recuadro sobre la hoja) y cuantizando a 32
-  colores. Para otro cliente, repetir esa receta: el JPEG crudo mete ruido
+  `LOGO_PATH`), así que no necesita variable de entorno ni en Render. Es el
+  logo nuevo que estrenó la landing (original: `landing/originales/
+  Logo_mejorado.png`, fuera de git), recortado al contenido, reducido a 720 px
+  de ancho y cuantizado a 32 colores. El logo viejo era un JPEG con fondo gris
+  viñeteado que hubo que volver transparente. Para otro cliente, repetir esa receta: el JPEG crudo mete ruido
   que multiplica por diez el peso del PDF que viaja por correo.
 - **Sin rate-limit** en `/api/acta`. Para producción conviene uno básico.
 - **Render free BLOQUEA la salida SMTP** (puertos 25, 465 y 587). RESUELTO

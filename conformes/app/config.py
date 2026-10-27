@@ -47,7 +47,7 @@ def _clave_app(nombre: str) -> str:
 # BLOQUEA los puertos de SMTP, así que en producción el único camino es HTTPS.
 # En local SMTP sigue sirviendo y no obliga a tener clave de Resend.
 RESEND_API_KEY = _var("RESEND_API_KEY")
-# Remitente verificado en Resend, ej: "conformes@rexcarga.com".
+# Remitente verificado en Resend, ej: "conformes@transporterexcarga.com".
 # Debe pertenecer a un dominio verificado allí, o el envío se rechaza.
 MAIL_FROM = _var("MAIL_FROM")
 

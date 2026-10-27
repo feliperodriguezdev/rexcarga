@@ -1,11 +1,11 @@
 :root {
-  /* Azul y rojo tomados del propio logo (#18446F es el 71% de su tinta). */
-  --navy: #18446F;
-  --navy-deep: #133B64;
-  --red: #C11C1E;
-  --red-press: #A3181A;
+  /* Azul y rojo del logo, los mismos tokens que la landing (landing/public/styles.css). */
+  --navy: #0B2F5E;
+  --navy-deep: #071E3D;
+  --red: #D00F17;
+  --red-press: #A80C12;
 
-  --ink: #14293F;          /* texto: el azul del logo llevado a casi negro */
+  --ink: #0E1B2E;          /* texto: el azul del logo llevado a casi negro */
   --steel: #1E3C5C;
   --slate: #5B6875;
   --line: #D6DCE2;
@@ -36,7 +36,7 @@ html, body {
   background: var(--surface);
   color: var(--ink);
   border-bottom: 1px solid var(--line);
-  box-shadow: 0 1px 3px rgba(20,41,63,.06);
+  box-shadow: 0 1px 3px rgba(14,27,46,.06);
 }
 .topbar-inner {
   max-width: 640px; margin: 0 auto; padding: 10px 16px;
@@ -85,7 +85,7 @@ input, select, textarea {
 textarea { resize: none; overflow-y: hidden; line-height: 1.4; }
 input:focus, select:focus, textarea:focus {
   border-color: var(--steel);
-  box-shadow: 0 0 0 3px rgba(24,68,111,.14);
+  box-shadow: 0 0 0 3px rgba(11,47,94,.14);
 }
 .mono { font-family: "IBM Plex Mono", ui-monospace, monospace; letter-spacing: .5px; text-transform: uppercase; }
 .invalid { border-color: var(--danger) !important; box-shadow: 0 0 0 3px rgba(192,57,43,.12) !important; }
@@ -198,7 +198,7 @@ input:focus, select:focus, textarea:focus {
   border: 2px solid #fff; background: var(--danger); color: #fff;
   font-size: .78rem; line-height: 1; cursor: pointer;
   display: flex; align-items: center; justify-content: center;
-  box-shadow: 0 1px 3px rgba(20,41,63,.3);
+  box-shadow: 0 1px 3px rgba(14,27,46,.3);
 }
 .fotos-acciones { display: flex; gap: 8px; }
 .btn-foto {

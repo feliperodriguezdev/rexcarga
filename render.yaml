@@ -3,6 +3,12 @@ services:
     name: conforme-rexcarga
     runtime: python
     plan: free
+    # Monorepo: el servicio vive en conformes/ y solo se redespliega si cambia
+    # algo ahí. La landing va aparte, en Cloudflare Pages.
+    rootDir: conformes
+    buildFilter:
+      paths:
+        - conformes/**
     buildCommand: "pip install -r requirements.txt"
     startCommand: "uvicorn app.main:app --host 0.0.0.0 --port $PORT"
     envVars:

@@ -1,0 +1,4 @@
+# Cloudflare Pages. Atajo para los conductores: transporterexcarga.com/conforme lleva a
+# la app de conformes, que corre aparte en Render (ver README de la raíz).
+/conforme   https://conformes.transporterexcarga.com/  302
+/conformes  https://conformes.transporterexcarga.com/  302
