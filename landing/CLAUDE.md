@@ -18,10 +18,11 @@ también el CLAUDE.md de la raíz). Todavía no está publicada. Pendiente:
 
 ## Decisiones (respétalas)
 
-- **Rutas relativas** (`img/...`, `styles.css`, `api/cotizacion`). Nacieron
-  para una vista previa en GitHub Pages (subcarpeta), que ya se retiró:
-  Cloudflare Pages da sus propias URLs de vista previa. Se dejan así porque
-  no estorban.
+- **Rutas relativas** (`img/...`, `styles.css`, `api/cotizacion`), nunca con
+  `/` al inicio. La landing también se publica en GitHub Pages, en la
+  subcarpeta `/rexcarga/`, y ahí una ruta con `/` apunta a la raíz del
+  dominio, donde no existe nada. El workflow es
+  `.github/workflows/landing-pages.yml`, en la raíz del repo.
 
 - **Cloudflare Pages, sin build.** `public/` se publica tal cual y
   `functions/` son las Pages Functions. HTML, CSS y JS vanilla, sin framework

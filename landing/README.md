@@ -41,6 +41,17 @@ Vive en `landing/` del monorepo (ver el README de la raíz).
 
 Cada push a `master` publica. Las ramas generan URLs de vista previa.
 
+## Alternativa: GitHub Pages
+
+`.github/workflows/landing-pages.yml` (en la raíz del repo) publica
+`landing/public` en cada push a `master` que la toque. En el repo hay que
+activar una vez **Settings → Pages → Source: GitHub Actions**. Queda en
+`https://feliperodriguezdev.github.io/rexcarga/`.
+
+Limitaciones: GitHub Pages no ejecuta `functions/`, así que el formulario no
+envía correos (el cliente ve el respaldo por WhatsApp), y no interpreta
+`_redirects`.
+
 ## Correo (Resend)
 
 Para que `MAIL_FROM` pueda ser `@transporterexcarga.com`, el dominio tiene que estar
