@@ -1,0 +1,19 @@
+services:
+  - type: web
+    name: conforme-rexcarga
+    runtime: python
+    plan: free
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "uvicorn app.main:app --host 0.0.0.0 --port $PORT"
+    envVars:
+      # Render free bloquea SMTP: en producción el correo sale por Resend (HTTPS).
+      - key: RESEND_API_KEY
+        sync: false
+      - key: MAIL_FROM
+        sync: false
+      - key: MANAGER_EMAIL
+        sync: false
+      - key: COMPANY_NAME
+        sync: false
+      - key: TIMEZONE
+        value: America/Bogota
