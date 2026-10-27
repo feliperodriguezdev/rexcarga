@@ -16,6 +16,13 @@
     a.rel = "noopener";
   });
 
+  // --- Portada: con "reducir movimiento" el video se queda en su póster
+  const videoPortada = document.querySelector("video.portada__foto");
+  if (videoPortada && matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    videoPortada.removeAttribute("autoplay");
+    videoPortada.pause();
+  }
+
   // --- Cabecera: sombra al hacer scroll y menú móvil
   const cabecera = document.getElementById("cabecera");
   const botonMenu = document.getElementById("boton-menu");

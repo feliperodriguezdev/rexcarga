@@ -14,7 +14,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="preload" as="image" href="img/hero.webp">
+  <link rel="preload" as="image" href="img/portada-poster.webp">
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -40,11 +40,12 @@
 
   <!-- Portada -->
   <section class="portada" id="inicio">
-    <img class="portada__foto" src="img/hero.webp" alt="Niñera de Rexcarga cargada de vehículos al atardecer" width="1599" height="899" fetchpriority="high">
+    <!-- Video de fondo, sin sonido. El póster es su primer cuadro: se ve mientras carga
+         y se queda fijo si el visitante pidió reducir el movimiento (main.js). -->
+    <video class="portada__foto" src="img/portada.mp4" poster="img/portada-poster.webp" autoplay muted loop playsinline preload="auto" aria-hidden="true"></video>
     <div class="contenedor portada__contenido">
       <p class="antetitulo antetitulo--claro">Transporte terrestre de vehículos</p>
-      <h1>Tu vehículo tiene un destino.<br><span>Nosotros te ayudamos a llegar.</span></h1>
-      <p class="portada__texto">Transportamos tu vehículo con experiencia, seguridad y confianza.</p>
+      <h1>Transportamos tu vehículo con experiencia<br><span>seguridad y confianza.</span></h1>      
       <div class="portada__acciones">
         <a href="#cotizar" class="boton boton--primario">Cotiza tu traslado</a>
         <a href="#servicios" class="boton boton--contorno-claro">Ver servicios</a>
