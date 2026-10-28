@@ -84,7 +84,7 @@
           </figure>
           <div class="valores__cabeza">
             <span class="valores__numero">01.</span>
-            <h3 class="valores__destacado">Profesionalismo</h3>
+            <h3>Profesionalismo</h3>
           </div>
           <p>Actuamos con responsabilidad y organización en cada servicio, mediante la coordinación de las operaciones y la atención a los requerimientos de cada traslado.</p>
         </li>
@@ -94,7 +94,7 @@
           </figure>
           <div class="valores__cabeza">
             <span class="valores__numero">02.</span>
-            <h3>Precisión</h3>
+            <h3>Compromiso</h3>
           </div>
           <p>Prestamos atención a cada detalle del proceso, desde la verificación y el registro del estado del vehículo hasta la coordinación de su recogida y hasta la entrega.</p>
         </li>
@@ -104,7 +104,7 @@
           </figure>
           <div class="valores__cabeza">
             <span class="valores__numero">03.</span>
-            <h3>Innovación y mejora continua</h3>
+            <h3>Evolución operativa</h3>
           </div>
           <p>Incorporamos herramientas como el monitoreo satelital GPS y el inventario del vehículo, y buscamos fortalecer nuestros procesos para mejorar el seguimiento, el control y la gestión de cada traslado.</p>
         </li>
@@ -132,7 +132,7 @@
         <article class="ventaja">
           <span class="ventaja__icono"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2.5 8.5A1.5 1.5 0 0 1 4 7h2.6l1.6-2.2h7.6L17.4 7H20a1.5 1.5 0 0 1 1.5 1.5v10A1.5 1.5 0 0 1 20 20H4a1.5 1.5 0 0 1-1.5-1.5z"/><circle cx="12" cy="13.3" r="3.9"/><path class="acento" d="M10.3 13.4l1.2 1.2 2.3-2.4"/></svg></span>
           <h3>Inspección y registro fotográfico</h3>
-          <p>Registro del estado del vehículo antes del traslado y al momento de la entrega, para facilitar su trazabilidad.</p>
+          <p>Registro del estado del vehículo antes del traslado y al momento de la entrega.</p>
         </article>
         <article class="ventaja">
           <span class="ventaja__icono"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11 21.6S3.5 18 3.5 12.1V5.6L11 2.6l3.5 1.4"/><path d="M11 21.6s7.5-3.6 7.5-9.5v-1.6"/><path class="acento" d="M11 16.2s-2.8-2.4-2.8-4.5a2.8 2.8 0 0 1 5.6 0c0 2.1-2.8 4.5-2.8 4.5z"/><circle class="acento" cx="11" cy="11.7" r=".9"/><path class="acento" d="M17.6 3.2a3.6 3.6 0 0 1 3.2 3.2M17.4 5.8a1.2 1.2 0 0 1 .8.8"/></svg></span>
@@ -341,7 +341,10 @@
 <footer class="pie">
   <div class="contenedor pie__columnas">
     <div class="pie__marca">
-      <img src="img/logo-pie.png" alt="Transporte Rexcarga S.A.S" width="158" height="72" loading="lazy">
+      <div class="pie__logos">
+        <img src="img/logo-pie.png" alt="Transporte Rexcarga S.A.S" width="158" height="72" loading="lazy">
+        <img class="pie__vigilado" src="img/logo-supertransporte.webp" alt="Vigilado SuperTransporte" width="613" height="144" loading="lazy">
+      </div>
       <p>Transporte terrestre de vehículos en niñera y grúa, con cobertura nacional.</p>
     </div>
     <div>
@@ -372,7 +375,9 @@
   <svg viewBox="0 0 24 24" aria-hidden="true"><use href="#icono-whatsapp"/></svg>
 </a>
 
-<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+<!-- Biblioteca de íconos: el estilo en línea le gana al "svg { 1em }" global,
+     que si no le daba alto y dejaba una franja blanca bajo el pie. -->
+<svg style="position:absolute;width:0;height:0;overflow:hidden" aria-hidden="true">
   <symbol id="icono-whatsapp" viewBox="0 0 24 24">
     <path fill="currentColor" stroke="none" d="M17.47 14.38c-.3-.15-1.76-.87-2.03-.97-.27-.1-.47-.15-.67.15-.2.3-.77.97-.94 1.17-.17.2-.35.22-.64.07-.3-.15-1.26-.46-2.4-1.48-.89-.79-1.49-1.77-1.66-2.07-.17-.3-.02-.46.13-.6.13-.13.3-.35.45-.52.15-.17.2-.3.3-.5.1-.2.05-.37-.03-.52-.07-.15-.67-1.61-.92-2.2-.24-.58-.49-.5-.67-.51h-.57c-.2 0-.52.07-.79.37-.27.3-1.04 1.02-1.04 2.48s1.07 2.88 1.21 3.08c.15.2 2.1 3.2 5.08 4.49.71.31 1.26.49 1.69.63.71.23 1.36.2 1.87.12.57-.08 1.76-.72 2-1.41.25-.7.25-1.29.17-1.41-.07-.12-.27-.2-.57-.35zM12.05 21.5h-.01a9.4 9.4 0 0 1-4.8-1.31l-.34-.2-3.57.94.95-3.48-.22-.36a9.43 9.43 0 0 1-1.45-5.02c0-5.2 4.24-9.44 9.45-9.44 2.52 0 4.89.99 6.67 2.77a9.37 9.37 0 0 1 2.77 6.68c0 5.2-4.24 9.43-9.45 9.43zm8.04-17.47A11.3 11.3 0 0 0 12.05.7C5.78.7.68 5.8.68 12.06c0 2 .52 3.96 1.52 5.68L.58 23.6l6-1.57a11.34 11.34 0 0 0 5.46 1.39h.01c6.26 0 11.36-5.1 11.36-11.36 0-3.03-1.18-5.89-3.32-8.03z"/>
   </symbol>
