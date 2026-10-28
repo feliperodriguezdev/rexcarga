@@ -87,6 +87,10 @@ https://<tu-servicio>.onrender.com/health
 Coloca un PNG en `app/static/logo.png` (o define `LOGO_PATH`). Si no hay logo,
 el PDF simplemente lo omite.
 
+Cuando el transporte se hace para un tercero, el conforme lleva el nombre y el
+logo de esa empresa. Hoy está HAL (Horizon Auto Logistics), con
+`app/static/logo_hal.png`; el catálogo está en `config.CLIENTES`.
+
 ## Estructura
 
 ```

@@ -25,6 +25,10 @@ ETIQUETA_TRANSPORTE = {
     "rodado": "Rodado",
 }
 
+# Para quién se hace el transporte. El nombre y el logo de cada uno viven en
+# config.CLIENTES: aquí solo se valida que la clave exista.
+Cliente = Literal["rexcarga", "hal"]
+
 # Placa del vehículo que hace el movimiento: 6 caracteres alfanuméricos.
 _MAX_PLACA = 6
 
@@ -165,6 +169,7 @@ class Unidad(BaseModel):
 
 class ActaRequest(BaseModel):
     """Payload completo que llega desde el formulario."""
+    cliente: Cliente
     lugar: str
     transporte_tipo: TipoTransporte
     transporte_placa: str

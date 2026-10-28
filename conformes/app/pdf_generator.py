@@ -152,8 +152,10 @@ def _dibujar_hoja(c, acta: ActaRequest, unidad, indice: int, total: int,
     # --- Encabezado ---
     if logo_reader is not None:
         try:
+            # Caja ancha para que quepa un logo apaisado (el de HAL mide 8:1);
+            # uno más cuadrado, como el de Rexcarga, lo limita la altura.
             c.drawImage(logo_reader, MARGIN, y - 14 * mm, height=14 * mm,
-                        width=30 * mm, preserveAspectRatio=True, anchor="sw", mask="auto")
+                        width=75 * mm, preserveAspectRatio=True, anchor="sw", mask="auto")
         except Exception:
             pass
 

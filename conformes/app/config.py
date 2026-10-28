@@ -75,9 +75,21 @@ LOGO_PATH = _var("LOGO_PATH", str(BASE_DIR / "static" / "logo.png"))
 TIMEZONE = _var("TIMEZONE", "America/Bogota")
 
 
-def logo_file():
+# --- Para quién se hace el transporte ---
+# Rexcarga también trabaja como tercero: empresas como HAL la contratan para
+# mover vehículos a nombre de ellas. El conductor elige al inicio para quién
+# es el transporte, y el conforme sale con el nombre y el logo de esa
+# empresa. Las claves son las mismas de `Cliente` en models.py.
+CLIENTES = {
+    "rexcarga": {"nombre": COMPANY_NAME, "logo": LOGO_PATH},
+    "hal": {"nombre": "Horizon Auto Logistics",
+            "logo": str(BASE_DIR / "static" / "logo_hal.png")},
+}
+
+
+def logo_file(ruta: str = LOGO_PATH):
     """Devuelve la ruta del logo si el archivo existe, si no None."""
-    p = Path(LOGO_PATH)
+    p = Path(ruta)
     return str(p) if p.is_file() else None
 
 

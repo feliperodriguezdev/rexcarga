@@ -80,12 +80,13 @@ async def crear_acta(request: Request):
     fecha = datetime.now(ZoneInfo(config.TIMEZONE))
     folio = _generar_folio(fecha)
 
-    # 3) PDF
+    # 3) PDF, con el nombre y el logo de la empresa para la que se transporta
+    cliente = config.CLIENTES[acta.cliente]
     try:
         pdf_bytes = generar_pdf(
             acta, folio, fecha,
-            logo_path=config.logo_file(),
-            empresa=config.COMPANY_NAME,
+            logo_path=config.logo_file(cliente["logo"]),
+            empresa=cliente["nombre"],
         )
     except Exception:
         log.exception("Error generando el PDF")
@@ -104,7 +105,7 @@ async def crear_acta(request: Request):
         email_error = "El envío de correo no está configurado en el servidor."
     else:
         try:
-            enviar_acta(pdf_bytes, folio, acta, config.COMPANY_NAME)
+            enviar_acta(pdf_bytes, folio, acta, cliente["nombre"])
         except Exception as e:
             log.exception("Error enviando el correo")
             email_ok = False

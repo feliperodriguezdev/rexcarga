@@ -74,6 +74,20 @@ document.querySelectorAll("[data-clear]").forEach((b) =>
   pintar();
 });
 
+// ---------- Para quién es el transporte ----------
+// Arranca sin elegir: el conforme sale a nombre y con el logo de esta empresa.
+const segCliente = document.getElementById("seg-cliente");
+let cliente = null;
+
+segCliente.querySelectorAll(".seg-btn").forEach((b) =>
+  b.addEventListener("click", () => {
+    segCliente.querySelectorAll(".seg-btn").forEach((x) => x.classList.remove("active"));
+    b.classList.add("active");
+    cliente = b.dataset.cliente;
+    marcar(segCliente, false);
+  })
+);
+
 // ---------- Tipo de transporte y su placa ----------
 const ETIQUETA_PLACA = {
   ninera: "Placa de la niñera",
@@ -378,6 +392,11 @@ function marcar(el, malo) {
 function validar(payload, partes) {
   const errores = [];
 
+  if (!payload.cliente) {
+    errores.push("Indica para quién es el transporte.");
+    marcar(segCliente, true);
+  } else marcar(segCliente, false);
+
   if (!payload.lugar) {
     errores.push("Indica el lugar de la transferencia.");
     marcar(document.getElementById("lugar"), true);
@@ -427,6 +446,7 @@ function recolectar() {
     fotos: (u._fotos || []).map((f) => f.dataUrl),
   }));
   const payload = {
+    cliente,
     lugar: document.getElementById("lugar").value.trim(),
     transporte_tipo: transporteTipo,
     transporte_placa: normalizarPlaca(inputPlaca.value),

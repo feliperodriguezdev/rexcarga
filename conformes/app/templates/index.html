@@ -29,6 +29,16 @@
 
     <section class="card">
       <h2 class="card-title">Datos de la transferencia</h2>
+      <!-- Sin opción marcada a propósito: el conforme sale a nombre de esta
+           empresa, así que el conductor tiene que elegirla, no heredarla. -->
+      <div class="field">
+        <span>¿Para quién es el transporte?</span>
+        <div class="seg" id="seg-cliente" role="tablist">
+          <button type="button" class="seg-btn" data-cliente="rexcarga">Rexcarga</button>
+          <button type="button" class="seg-btn" data-cliente="hal">HAL</button>
+        </div>
+      </div>
+
       <label class="field">
         <span>Lugar de la transferencia</span>
         <input id="lugar" type="text" inputmode="text" autocomplete="off"

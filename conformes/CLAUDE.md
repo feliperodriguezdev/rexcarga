@@ -80,6 +80,7 @@ El navegador manda JSON; el servidor valida TODO (no confíes en el cliente).
 
 ```json
 {
+  "cliente": "rexcarga|hal",
   "lugar": "str obligatorio",
   "transporte_tipo": "ninera|grua|rodado",
   "transporte_placa": "str obligatorio, alfanumérico, máx 6",
@@ -110,6 +111,16 @@ El `pdf_base64` alimenta el botón "Descargar PDF" (respaldo si el correo falla)
   el canvas en blanco (mínimo de píxeles con tinta).
 - **Observación obligatoria** por unidad; el formulario la pre-llena con
   "Sin observaciones" (editable/borrable), para ahorrarle escritura al conductor.
+- **Para quién es el transporte** (`cliente`): obligatorio y primer campo del
+  formulario. Rexcarga también trabaja como tercero: empresas como HAL la
+  contratan para mover vehículos a nombre de ellas. El conforme (encabezado
+  del PDF, logo y remitente del correo) sale a nombre de esa empresa: con
+  `hal`, "Horizon Auto Logistics" y `app/static/logo_hal.png`. El catálogo
+  vive en `config.CLIENTES` y sus claves en `Cliente` (`models.py`); un
+  cliente nuevo se agrega en los dos sitios más un botón en el formulario.
+  El selector arranca **sin opción marcada** a propósito: si viniera
+  preseleccionado, un descuido dejaría el documento firmado a nombre de otra
+  empresa.
 - **Vehículo que hace el movimiento**: obligatorio. Tipo (`ninera`, `grua` o
   `rodado` — este último es la unidad moviéndose por sus propios medios) más su
   placa, alfanumérica de máximo 6 caracteres, guardada en mayúsculas y sin
@@ -203,7 +214,9 @@ Nunca pongas la app password ni ningún secreto en el frontend ni en el repo.
   logo nuevo que estrenó la landing (original: `landing/originales/
   Logo_mejorado.png`, fuera de git), recortado al contenido, reducido a 720 px
   de ancho y cuantizado a 32 colores. El logo viejo era un JPEG con fondo gris
-  viñeteado que hubo que volver transparente. Para otro cliente, repetir esa receta: el JPEG crudo mete ruido
+  viñeteado que hubo que volver transparente. El de HAL (`logo_hal.png`)
+  sigue la misma receta desde `app/images/logo_hal.jpeg`: fondo casi blanco
+  vuelto transparente y 32 colores. Para otro cliente, repetir esa receta: el JPEG crudo mete ruido
   que multiplica por diez el peso del PDF que viaja por correo.
 - **Sin rate-limit** en `/api/acta`. Para producción conviene uno básico.
 - **Render free BLOQUEA la salida SMTP** (puertos 25, 465 y 587). RESUELTO
