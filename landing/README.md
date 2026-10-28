@@ -90,6 +90,6 @@ directamente en una URL de vista previa de Pages.
 - **Textos**: directo en `index.html`. Salen de la propuesta del cliente
   (`landing-rexcarga.docx`).
 - **Número de WhatsApp y mensaje**: constantes al principio de `main.js`.
-- **Fotos de la galería**: `public/img/galeria/01.webp … 14.webp`. Si cambia
+- **Fotos de la galería**: `public/img/galeria/01.webp … 21.webp`. Si cambia
   la cantidad, actualiza `FOTOS_GALERIA` en `main.js`. Para optimizar fotos
   nuevas: máximo 1200 px de ancho, WebP calidad ~75, sin EXIF.
