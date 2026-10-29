@@ -131,6 +131,11 @@ def _enviar_por_resend(remitente, destinatarios, asunto, cuerpo, adjuntos):
         headers={
             "Authorization": f"Bearer {config.RESEND_API_KEY}",
             "Content-Type": "application/json",
+            # Resend está detrás de Cloudflare, que bloquea el User-Agent por
+            # defecto de urllib ("Python-urllib/3.x") con un 403 "error code:
+            # 1010" antes de que la petición llegue a Resend. Cualquier nombre
+            # propio basta.
+            "User-Agent": "conformes-rexcarga/1.0",
         },
         method="POST",
     )
