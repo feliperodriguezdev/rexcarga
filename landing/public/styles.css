@@ -38,7 +38,9 @@ img { max-width: 100%; height: auto; display: block; }
 h1, h2, h3, h4 { color: var(--ink); line-height: 1.15; margin: 0 0 .6em; letter-spacing: -.02em; }
 h2 { font-size: clamp(1.75rem, 3.6vw, 2.6rem); font-weight: 800; max-width: 22ch; }
 h3 { font-size: 1.25rem; font-weight: 700; }
-p { margin: 0 0 1em; }
+/* Párrafos justificados, pedido del cliente. El guionado (lang="es") evita
+   los huecos grandes entre palabras en columnas angostas, sobre todo en móvil. */
+p { margin: 0 0 1em; text-align: justify; hyphens: auto; }
 a { color: var(--navy); }
 svg { width: 1em; height: 1em; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
 
@@ -335,7 +337,7 @@ legend span { display: grid; place-items: center; width: 32px; height: 32px; bor
 .exito { text-align: center; padding: 24px 0; }
 .exito > svg { width: 64px; height: 64px; color: var(--whatsapp); stroke-width: 1.6; margin: 0 auto 16px; }
 .exito h3 { font-size: 1.6rem; }
-.exito p { max-width: 40ch; margin: 0 auto 24px; }
+.exito p { max-width: 40ch; margin: 0 auto 24px; text-align: center; }
 
 /* Pie */
 .pie { background: var(--navy-hondo); border-top: 2px solid var(--red); color: rgba(255,255,255,.72); padding: 64px 0 0; font-size: .97rem; }
