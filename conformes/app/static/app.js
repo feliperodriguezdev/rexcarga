@@ -129,6 +129,17 @@ inputPlaca.addEventListener("input", () => {
 // correo final ronda los 12 MB y entra con holgura en cualquier buzón.
 const PRESUPUESTO_FOTOS = 8 * 1024 * 1024;
 
+// Límite DURO de peso de fotos por conforme; el servidor rechaza lo que pase
+// de aquí (_MAX_BYTES_FOTOS_TOTAL en models.py: si cambia uno, cambia el otro).
+// La cantidad de fotos no tiene tope: solo cuenta el peso. Se avisa desde el
+// 80 % porque a esa altura el navegador ya agotó la compresión automática.
+const LIMITE_FOTOS = 12 * 1024 * 1024;
+const AVISO_FOTOS = LIMITE_FOTOS * 0.8;
+
+function enMB(bytes) {
+  return `${(bytes / 1024 / 1024).toFixed(1).replace(".", ",").replace(/,0$/, "")} MB`;
+}
+
 // Si el conforme crece, se baja de nivel en vez de pedirle al conductor que
 // borre fotos: él nunca debería tener que decidir esto en un patio.
 const NIVELES_FOTO = [
@@ -188,15 +199,35 @@ function pesoTotalFotos() {
 function pintarPeso() {
   const caja = document.getElementById("peso-fotos");
   const fotos = todasLasFotos();
+  pintarAvisoFotos();
   if (!fotos.length) { caja.hidden = true; return; }
   const bytes = pesoTotalFotos();
   // Por debajo de 1 MB, "0,0 MB" no le dice nada a nadie: mejor en KB.
   const peso = bytes < 1024 * 1024
     ? `${Math.round(bytes / 1024)} KB`
-    : `${(bytes / 1024 / 1024).toFixed(1)} MB`;
+    : enMB(bytes);
   caja.hidden = false;
   caja.textContent = `${fotos.length} ${fotos.length === 1 ? "foto" : "fotos"} · ${peso}`;
-  caja.classList.toggle("apretado", pesoTotalFotos() > PRESUPUESTO_FOTOS * 0.75);
+  caja.classList.toggle("apretado", bytes > AVISO_FOTOS);
+}
+
+// Aviso en la barra fija de abajo, que siempre está a la vista: el conductor
+// suele estar agregando fotos lejos del contador de arriba.
+function pintarAvisoFotos() {
+  const aviso = document.getElementById("aviso-fotos");
+  const bytes = pesoTotalFotos();
+  const excedido = bytes > LIMITE_FOTOS;
+  const cerca = !excedido && bytes > AVISO_FOTOS;
+  aviso.hidden = !excedido && !cerca;
+  aviso.classList.toggle("excedido", excedido);
+  document.body.classList.toggle("con-aviso", excedido || cerca);
+  if (excedido) {
+    aviso.textContent = `Las fotos pesan ${enMB(bytes)} y el máximo es ${enMB(LIMITE_FOTOS)}. ` +
+      "Quita algunas fotos para poder enviar el conforme.";
+  } else if (cerca) {
+    aviso.textContent = `Las fotos ya pesan ${enMB(bytes)} de ${enMB(LIMITE_FOTOS)} permitidos. ` +
+      "Agrega solo las fotos necesarias.";
+  }
 }
 
 // Si el conforme se pasa del presupuesto, rehacemos TODAS las fotos en el
@@ -426,6 +457,11 @@ function validar(payload, partes) {
     if (!u.observacion) errores.push(`La unidad ${i + 1} no tiene observaciones.`);
   });
 
+  const pesoFotos = pesoTotalFotos();
+  if (pesoFotos > LIMITE_FOTOS) {
+    errores.push(`Las fotos pesan ${enMB(pesoFotos)} y el máximo es ${enMB(LIMITE_FOTOS)}. Quita algunas fotos.`);
+  }
+
   // Las firmas se revisan de últimas para que la lista de errores siga el
   // mismo orden que el formulario.
   for (const [rol, p] of Object.entries(partes)) {
@@ -465,6 +501,12 @@ function strip(p) {
 const errorBox = document.getElementById("error-box");
 const btnEnviar = document.getElementById("enviar");
 
+function escaparHtml(texto) {
+  const div = document.createElement("div");
+  div.textContent = texto;
+  return div.innerHTML;
+}
+
 function mostrarErrores(lista) {
   errorBox.innerHTML = "<strong>Revisa lo siguiente:</strong><br>" + lista.join("<br>");
   errorBox.hidden = false;
@@ -487,7 +529,13 @@ btnEnviar.addEventListener("click", async () => {
     });
     const data = await res.json();
     if (!data.ok) {
-      mostrarErrores([data.error || "No se pudo procesar el conforme."]);
+      // El servidor explica en "detalles" qué falló (p. ej. un tope de fotos);
+      // sin esto el conductor solo veía "Revisa los datos del formulario".
+      const detalles = (data.detalles || [])
+        .map((d) => escaparHtml(String(d.mensaje || "").replace(/^Value error, /, "")))
+        .filter(Boolean);
+      mostrarErrores(detalles.length ? detalles
+        : [escaparHtml(data.error || "No se pudo procesar el conforme.")]);
       return;
     }
     mostrarExito(data);

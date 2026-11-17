@@ -138,8 +138,13 @@ El `pdf_base64` alimenta el botón "Descargar PDF" (respaldo si el correo falla)
   despoja de metadatos, incluida la ubicación GPS. En el PDF van como tira de
   miniaturas en la hoja de su unidad (una fila de 4 grandes, o dos filas más
   pequeñas si hay más); en tamaño completo viajan como adjuntos del correo.
-  Los topes de `models.py` (15 por unidad, 2 MB cada una, 20 MB por acta) no
-  son límites de producto sino válvulas contra un cliente malicioso.
+  **El límite es de PESO, no de cantidad** (pedido del cliente): 12 MB de
+  fotos por conforme, en `models.py` (`_MAX_BYTES_FOTOS_TOTAL`) y repetido en
+  `app.js` (`LIMITE_FOTOS`); si cambia uno, cambia el otro. Sale de que todas
+  viajan como adjuntos: 12 MB dan un correo de ~17 MB, que entra en Gmail
+  (25 MB) y Outlook (20 MB). Desde el 80 % la barra de abajo muestra un aviso
+  ámbar; al pasarlo, uno rojo y el envío se bloquea. Los 2 MB por foto son
+  solo una válvula contra un cliente malicioso.
   Nota de dominio: una niñera carga 9 unidades como máximo y el conforme
   registra UNA placa de transporte, así que el acta tiene techo físico propio.
 - **Identificador**: VIN o placa (al menos uno por unidad). NO se validan los

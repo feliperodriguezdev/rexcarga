@@ -246,6 +246,17 @@ input:focus, select:focus, textarea:focus {
 }
 .actionbar > .btn-primary { max-width: 640px; margin: 0 auto; display: block; }
 
+/* Aviso de peso de fotos, dentro de la barra fija para que se vea siempre.
+   Ámbar cuando se acerca al límite; con los colores de error al pasarlo. */
+.aviso-fotos {
+  max-width: 640px; margin: 0 auto 10px;
+  background: #FFF4D6; border: 1px solid #F0D58A; color: #6B4E00;
+  border-radius: 10px; padding: 8px 12px; font-size: .85rem; font-weight: 600;
+}
+.aviso-fotos.excedido { background: #FCEBEA; border-color: #F2C4bf; color: #8A2A20; }
+/* La barra crece con el aviso: el espaciador también, para no tapar el final. */
+.con-aviso .spacer { height: 170px; }
+
 /* --- Error --- */
 .error-box {
   background: #FCEBEA; border: 1px solid #F2C4bf; color: #8A2A20;

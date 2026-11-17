@@ -37,13 +37,13 @@ _MIN_PIXELES_FIRMA = 40
 
 # --- Fotos de las unidades ---
 # El navegador reduce las fotos antes de subirlas (ver app.js): llegan como
-# JPEG de ~1280 px y unos 260 KB. Estos topes NO son límites de producto sino
-# válvulas de seguridad: sin ellos, cualquiera puede mandarle al servidor lo
-# que quiera. Una niñera carga 9 unidades como máximo, así que el uso real
-# queda muy por debajo.
-_MAX_FOTOS_POR_UNIDAD = 15
-_MAX_BYTES_FOTO = 2 * 1024 * 1024        # 2 MB por foto ya reducida
-_MAX_BYTES_FOTOS_TOTAL = 20 * 1024 * 1024  # 20 MB sumando todas las unidades
+# JPEG de ~1280 px y unos 260 KB. La CANTIDAD de fotos no tiene tope (pedido
+# del cliente): lo que cuenta es el PESO, porque todas viajan como adjuntos.
+# El total es el límite de producto y app.js lo repite para avisar antes de
+# llegar: 12 MB de fotos dan un correo de ~17 MB (base64 + PDF), que entra en
+# Gmail (25 MB) y Outlook (20 MB). Si se cambia, cambiar LIMITE_FOTOS también.
+_MAX_BYTES_FOTO = 2 * 1024 * 1024        # 2 MB por foto ya reducida (válvula)
+_MAX_BYTES_FOTOS_TOTAL = 12 * 1024 * 1024  # 12 MB sumando todas las unidades
 _FORMATOS_FOTO = {"JPEG", "PNG", "WEBP"}
 
 
@@ -160,8 +160,6 @@ class Unidad(BaseModel):
     @field_validator("fotos")
     @classmethod
     def _validar_fotos(cls, v: List[str]) -> List[str]:
-        if len(v) > _MAX_FOTOS_POR_UNIDAD:
-            raise ValueError(f"Máximo {_MAX_FOTOS_POR_UNIDAD} fotos por unidad")
         for foto in v:
             decodificar_foto(foto)     # lanza ValueError si algo no cuadra
         return v
@@ -203,15 +201,14 @@ class ActaRequest(BaseModel):
         """
         Vigila el peso sumado de todas las fotos del acta.
 
-        El tope por unidad no alcanza: nueve unidades en su límite darían un
-        correo que ningún buzón acepta. Este control ve el total, que es lo
-        que de verdad viaja.
+        Es el único límite de fotos: el total es lo que de verdad viaja en
+        el correo, sin importar cuántas fotos ni en qué unidades.
         """
         total = sum(len(decodificar_foto(f)) for u in v for f in u.fotos)
         if total > _MAX_BYTES_FOTOS_TOTAL:
             raise ValueError(
-                f"Las fotos suman {total // (1024*1024)} MB y el máximo es "
-                f"{_MAX_BYTES_FOTOS_TOTAL // (1024*1024)} MB"
+                f"Las fotos suman {total / (1024*1024):.1f} MB y el máximo es "
+                f"{_MAX_BYTES_FOTOS_TOTAL // (1024*1024)} MB. Quita algunas fotos."
             )
         return v
 
