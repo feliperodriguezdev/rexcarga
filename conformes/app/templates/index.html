@@ -10,12 +10,12 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="/static/styles.css" />
+  <link rel="stylesheet" href="{{ estatico('styles.css') }}" />
 </head>
 <body>
   <header class="topbar">
     <div class="topbar-inner">
-      <img class="brand-logo" src="/static/logo.png" alt="{{ empresa }}" />
+      <img class="brand-logo" src="{{ estatico('logo.png') }}" alt="{{ empresa }}" />
       <div class="brand">
         <span class="brand-title">Conforme de transferencia</span>
         <span class="brand-sub">{{ empresa }}</span>
@@ -222,6 +222,6 @@
     </section>
   </template>
 
-  <script src="/static/app.js"></script>
+  <script src="{{ estatico('app.js') }}"></script>
 </body>
 </html>

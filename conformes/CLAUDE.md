@@ -198,6 +198,10 @@ Nunca pongas la app password ni ningún secreto en el frontend ni en el repo.
   reserva, así que el texto reenvuelve y quedaría cortado), y no se puede medir
   una unidad colapsada (`display:none` da alto 0), por eso se reajusta al
   expandirla.
+- **Estáticos con versión**: en `index.html` se enlazan con
+  `{{ estatico('app.js') }}`, que agrega `?v=` con una huella del contenido
+  (`main.py`). Sin eso, tras un despliegue los celulares seguían días con el
+  `app.js` viejo. Todo estático nuevo que se enlace debe ir igual.
 - Unidades colapsables; al enviar con éxito se muestra pantalla de confirmación
   con folio, botón Descargar PDF y botón "Nueva acta" (recarga limpia).
 

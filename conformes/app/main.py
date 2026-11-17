@@ -7,6 +7,7 @@ Aplicación FastAPI.
 - GET  /health      -> para el ping que mantiene despierta la app en Render
 """
 import base64
+import hashlib
 import logging
 import secrets
 from datetime import datetime
@@ -31,6 +32,23 @@ app.mount("/static", StaticFiles(directory=config.BASE_DIR / "static"), name="st
 templates = Jinja2Templates(directory=str(config.BASE_DIR / "templates"))
 
 
+# Los estáticos se sirven sin Cache-Control, así que el celular decide solo
+# cuánto guardarlos y tras un despliegue podía seguir usando el app.js viejo
+# durante días. Cada enlace lleva "?v=" con una huella del contenido: cambia
+# solo cuando el archivo cambia, y el navegador lo trata como uno nuevo.
+_versiones: dict[str, str] = {}
+
+
+def estatico(nombre: str) -> str:
+    if nombre not in _versiones:
+        contenido = (config.BASE_DIR / "static" / nombre).read_bytes()
+        _versiones[nombre] = hashlib.sha256(contenido).hexdigest()[:10]
+    return f"/static/{nombre}?v={_versiones[nombre]}"
+
+
+templates.env.globals["estatico"] = estatico
+
+
 @app.on_event("startup")
 def aviso_config():
     faltan = config.missing_email_config()
@@ -51,10 +69,13 @@ def health():
 
 @app.get("/")
 def formulario(request: Request):
-    return templates.TemplateResponse(
+    respuesta = templates.TemplateResponse(
         "index.html",
         {"request": request, "empresa": config.COMPANY_NAME},
     )
+    # La página siempre se pide de nuevo: es la que trae las versiones nuevas.
+    respuesta.headers["Cache-Control"] = "no-cache"
+    return respuesta
 
 
 @app.post("/api/acta")
